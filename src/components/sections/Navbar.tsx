@@ -79,8 +79,12 @@ export default function Navbar() {
   return (
     <nav className="shadow-md py-2 sm:px-6 px-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 dark:text-white">
       <div className="flex flex-col gap-1 py-1">
-        <h3 className="text-sm font-bold">مرحبا بك, {userData?.name || "مستخدم"}</h3>
-        <p className="text-gray-600 text-sm dark:text-gray-400">{userData?.role || ""}</p>
+        <h3 className="text-sm font-bold">
+          مرحبا بك, {userData?.name || "مستخدم"}
+        </h3>
+        <p className="text-gray-600 text-sm dark:text-gray-400">
+          {userData?.role || ""}
+        </p>
       </div>
       <div className="flex items-center space-x-2">
         <SidebarTrigger />
@@ -88,8 +92,11 @@ export default function Navbar() {
         <Button
           type="default"
           className="flex items-center gap-2 text-black dark:text-white border-gray-300 dark:border-gray-600"
+          onClick={() => {
+            window.location.reload();
+          }}
         >
-          <span className="max-sm:hidden">Refresh</span>
+          <span className="max-sm:hidden">تحديث</span>
           <LuRefreshCcw />
         </Button>
         <Dropdown

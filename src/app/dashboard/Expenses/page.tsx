@@ -26,9 +26,10 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import dayjs from "dayjs"; // استيراد dayjs للتعامل مع التواريخ
-
+import isBetween from "dayjs/plugin/isBetween";
 const { Option } = Select;
 const { RangePicker } = DatePicker;
+import locale from "antd/lib/date-picker/locale/ar_EG";
 
 interface Expense {
   id: number;
@@ -43,6 +44,7 @@ interface Expense {
   date: string;
   createdAt: string;
 }
+dayjs.extend(isBetween);
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -94,27 +96,31 @@ export default function Page() {
     const today = new Date();
     setDateRange([today, today]); // تعيين تاريخ اليوم فقط كنطاق افتراضي
   }, []);
-
   const filteredExpenses = expenses
     .filter((exp) => {
       const matchesSearch =
         exp.description.toLowerCase().includes(searchInput.toLowerCase()) ||
         exp.responsiblePerson.toLowerCase().includes(searchInput.toLowerCase());
+
       const matchesType =
         filterType === "all" || exp.expenseType === filterType;
-      const expDate = new Date(exp.date);
-      const matchesDate =
-        !dateRange[0] ||
-        !dateRange[1] ||
-        (expDate >= dateRange[0] && expDate <= dateRange[1]);
+
+      const expDate = dayjs(exp.date); // استخدام dayjs
+
+      const matchesDate = (() => {
+        if (!dateRange[0] || !dateRange[1]) return true;
+
+        const start = dayjs(dateRange[0]); // استخدام dayjs
+        const end = dayjs(dateRange[1]).endOf("day"); // إضافة نهاية اليوم
+
+        return expDate.isBetween(start, end, null, "[]"); // مقارنة باستخدام isBetween من dayjs
+      })();
+
       return matchesSearch && matchesType && matchesDate;
     })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()); // استخدام unix لفرز التواريخ
 
   // Print Function (دون تعديل)
-  const handlePrint = () => {
-    // الكود الخاص بالطباعة كما هو
-  };
 
   if (isLoading) return <LoadingSkeleton />;
   if (error)
@@ -131,7 +137,7 @@ export default function Page() {
       </h1>
 
       {/* Summary Section - مع زر عرض التفاصيل */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>ملخص المصروفات</CardTitle>
@@ -141,9 +147,11 @@ export default function Page() {
           </div>
         </CardHeader>
         <CardContent>
-          {/* <ExpenseChart expenses={expenses} isOpen={false} onClose={() => { setIsChartOpen(false) }} /> */}
+          <p className="text-muted-foreground text-center">
+            عند ضغط زر عرض التفاصيل ، سيتم عرض تحليل بيانات المصروفات.
+          </p>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Filters Section */}
       <div className="flex flex-col md:flex-row gap-4 border-b pb-4 items-center">
@@ -168,6 +176,7 @@ export default function Page() {
         </Select>
         <RangePicker
           className="md:w-1/4"
+          locale={locale}
           value={[
             dateRange[0] ? dayjs(dateRange[0]) : null,
             dateRange[1] ? dayjs(dateRange[1]) : null,
@@ -187,9 +196,9 @@ export default function Page() {
           <Button type="default" onClick={() => setIsReportsOpen(true)}>
             <File size={18} className="ml-2" /> التقارير
           </Button>
-          <Button type="default" onClick={handlePrint}>
+          {/* <Button type="default" onClick={handlePrint}>
             <Printer size={18} className="ml-2" /> طباعة
-          </Button>
+          </Button> */}
         </div>
       </div>
 

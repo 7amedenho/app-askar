@@ -19,12 +19,14 @@ export default function LoginPage() {
       try {
         const response = await fetch("/api/auth/check-users");
         const data = await response.json();
-        
+
         setHasUsers(data.hasUsers);
-        
+
         // إذا لم يكن هناك مستخدمين، توجيه المستخدم إلى صفحة الإعداد
         if (!data.hasUsers) {
-          message.info("النظام بحاجة للإعداد، يتم توجيهك إلى صفحة الإعداد الأولي");
+          message.info(
+            "النظام بحاجة للإعداد، يتم توجيهك إلى صفحة الإعداد الأولي"
+          );
           setTimeout(() => {
             router.push("/setup");
           }, 2000);
@@ -59,10 +61,10 @@ export default function LoginPage() {
 
       // حفظ بيانات المستخدم في localStorage
       localStorage.setItem("userData", JSON.stringify(data.user));
-      
+
       // إطلاق حدث لتحديث المكونات الأخرى
       window.dispatchEvent(new Event("storage"));
-      
+
       message.success("تم تسجيل الدخول بنجاح");
       router.push("/dashboard");
     } catch (error: any) {
@@ -74,10 +76,12 @@ export default function LoginPage() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <h2 className="mt-4 text-xl font-semibold text-gray-700">جاري التحقق من حالة النظام...</h2>
+          <h2 className="mt-4 text-xl font-semibold text-gray-700">
+            جاري التحقق من حالة النظام...
+          </h2>
         </div>
       </div>
     );
@@ -85,7 +89,7 @@ export default function LoginPage() {
 
   if (!hasUsers) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <div className="text-center">
             <Alert
@@ -94,9 +98,9 @@ export default function LoginPage() {
               type="info"
               showIcon
             />
-            <Button 
-              className="mt-4" 
-              type="primary" 
+            <Button
+              className="mt-4"
+              type="primary"
               onClick={() => router.push("/setup")}
             >
               الذهاب إلى صفحة الإعداد
@@ -108,7 +112,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card
         className="w-full max-w-md shadow-lg"
         bordered={false}
@@ -182,4 +186,4 @@ export default function LoginPage() {
       </Card>
     </div>
   );
-} 
+}

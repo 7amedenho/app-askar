@@ -35,10 +35,10 @@ export function AppSidebar() {
     };
 
     getUserData();
-    
+
     // إضافة مستمع للتغييرات في localStorage
     window.addEventListener("storage", getUserData);
-    
+
     return () => {
       window.removeEventListener("storage", getUserData);
     };

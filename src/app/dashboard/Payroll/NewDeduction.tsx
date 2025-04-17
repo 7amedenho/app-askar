@@ -90,7 +90,7 @@ export default function NewDeduction({ custody, onSuccess }: DeductionProps) {
         </Form.Item>
 
         {selectedEmployee && (
-          <div className="bg-gray-100 p-3 rounded-md mb-4">
+          <div className=" p-3 rounded-md mb-4 flex justify-between">
             <p>
               <strong>الراتب اليومي:</strong> {selectedEmployee.dailySalary} ج.م
             </p>

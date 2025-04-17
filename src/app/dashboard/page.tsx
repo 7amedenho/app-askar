@@ -18,7 +18,7 @@ import {
   Button,
   Space,
   Skeleton,
-  Empty
+  Empty,
 } from "antd";
 import {
   AlertCircle,
@@ -32,7 +32,7 @@ import {
   Calendar,
   Clock,
   AlertTriangle,
-  Bell
+  Bell,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
@@ -49,169 +49,155 @@ export default function Dashboard() {
   const [currentDate] = useState<Date>(new Date());
 
   // Fetch employees data
-  const {
-    data: employees = [],
-    isLoading: isEmployeesLoading
-  } = useQuery({
+  const { data: employees = [], isLoading: isEmployeesLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const response = await axios.get("/api/employees");
       return response.data;
-    }
+    },
   });
 
   // Fetch attendance data
-  const {
-    data: attendance = [],
-    isLoading: isAttendanceLoading
-  } = useQuery({
+  const { data: attendance = [], isLoading: isAttendanceLoading } = useQuery({
     queryKey: ["recent-attendance"],
     queryFn: async () => {
       const response = await axios.get("/api/attendance/recent");
       return response.data;
-    }
+    },
   });
 
   // Fetch consumables data
-  const {
-    data: consumables = [],
-    isLoading: isConsumablesLoading
-  } = useQuery({
+  const { data: consumables = [], isLoading: isConsumablesLoading } = useQuery({
     queryKey: ["consumables"],
     queryFn: async () => {
       const response = await axios.get("/api/consumables");
       return response.data;
-    }
+    },
   });
 
   // Fetch equipment data
-  const {
-    data: equipment = [],
-    isLoading: isEquipmentLoading
-  } = useQuery({
+  const { data: equipment = [], isLoading: isEquipmentLoading } = useQuery({
     queryKey: ["equipment"],
     queryFn: async () => {
       const response = await axios.get("/api/equipment");
       return response.data;
-    }
+    },
   });
 
   // Fetch custody data
-  const {
-    data: custodies = [],
-    isLoading: isCustodiesLoading
-  } = useQuery({
+  const { data: custodies = [], isLoading: isCustodiesLoading } = useQuery({
     queryKey: ["custodies"],
     queryFn: async () => {
       const response = await axios.get("/api/custody");
       return response.data;
-    }
+    },
   });
 
   // Fetch projects data
-  const {
-    data: projects = [],
-    isLoading: isProjectsLoading
-  } = useQuery({
+  const { data: projects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const response = await axios.get("/api/projects");
       return response.data;
-    }
+    },
   });
 
   // Fetch expenses data
-  const {
-    data: expenses = [],
-    isLoading: isExpensesLoading
-  } = useQuery({
+  const { data: expenses = [], isLoading: isExpensesLoading } = useQuery({
     queryKey: ["expenses"],
     queryFn: async () => {
       const response = await axios.get("/api/expenses");
       return response.data;
-    }
+    },
   });
 
   // Fetch supplier invoices data
-  const {
-    data: invoices = [],
-    isLoading: isInvoicesLoading
-  } = useQuery({
+  const { data: invoices = [], isLoading: isInvoicesLoading } = useQuery({
     queryKey: ["supplier-invoices"],
     queryFn: async () => {
       const response = await axios.get("/api/invoices");
       return response.data;
-    }
+    },
   });
 
   // Calculate data when available (otherwise empty arrays for safety)
-  const lowStockConsumables = !isConsumablesLoading ?
-    consumables.filter((item: any) => item.stock < 10) : [];
+  const lowStockConsumables = !isConsumablesLoading
+    ? consumables.filter((item: any) => item.stock < 10)
+    : [];
 
-  const lowBudgetCustodies = !isCustodiesLoading ?
-    custodies.filter((custody: any) => {
-      const percentRemaining = (custody.remaining / custody.budget) * 100;
-      return percentRemaining < 20;
-    }) : [];
+  const lowBudgetCustodies = !isCustodiesLoading
+    ? custodies.filter((custody: any) => {
+        const percentRemaining = (custody.remaining / custody.budget) * 100;
+        return percentRemaining < 20;
+      })
+    : [];
 
-  const maintenanceEquipment = !isEquipmentLoading ?
-    equipment.filter((item: any) => item.status === "under_maintenance") : [];
+  const maintenanceEquipment = !isEquipmentLoading
+    ? equipment.filter((item: any) => item.status === "under_maintenance")
+    : [];
 
-  const activeProjects = !isProjectsLoading ?
-    projects.filter((project: any) => project.status === "active") : [];
+  const activeProjects = !isProjectsLoading
+    ? projects.filter((project: any) => project.status === "active")
+    : [];
 
-  const nearDeadlineProjects = !isProjectsLoading ?
-    activeProjects.filter((project: any) => {
-      if (!project.endDate) return false;
-      const endDate = new Date(project.endDate);
-      const daysRemaining = Math.ceil((endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
-      return daysRemaining > 0 && daysRemaining <= 14;
-    }) : [];
+  const nearDeadlineProjects = !isProjectsLoading
+    ? activeProjects.filter((project: any) => {
+        if (!project.endDate) return false;
+        const endDate = new Date(project.endDate);
+        const daysRemaining = Math.ceil(
+          (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        return daysRemaining > 0 && daysRemaining <= 14;
+      })
+    : [];
 
-  const unpaidInvoices = !isInvoicesLoading ?
-    invoices.filter((invoice: any) =>
-      invoice.status === "pending" || invoice.status === "partially_paid"
-    ) : [];
+  const unpaidInvoices = !isInvoicesLoading
+    ? invoices.filter(
+        (invoice: any) =>
+          invoice.status === "pending" || invoice.status === "partially_paid"
+      )
+    : [];
 
   // Calculate expense charts data only when expenses are loaded
-  const { monthlyExpenses, sortedMonths, expensesByType } = !isExpensesLoading ?
-    calculateExpenseData(expenses) : { monthlyExpenses: {}, sortedMonths: [], expensesByType: {} };
+  const { monthlyExpenses, sortedMonths, expensesByType } = !isExpensesLoading
+    ? calculateExpenseData(expenses)
+    : { monthlyExpenses: {}, sortedMonths: [], expensesByType: {} };
 
   // Expense chart options and series
   const expenseChartOptions: ApexOptions = {
     chart: {
-      type: 'area',
+      type: "area",
       toolbar: {
         show: true,
       },
-      fontFamily: 'Alexandria, Cairo, sans-serif',
+      fontFamily: "Alexandria, Cairo, sans-serif",
     },
     title: {
-      text: 'مصروفات الشهور الأخيرة',
-      align: 'center',
+      text: "مصروفات الشهور الأخيرة",
+      align: "center",
     },
     xaxis: {
       categories: sortedMonths.map(([month]) => month),
     },
     yaxis: {
       title: {
-        text: 'المبلغ (جنيه)',
+        text: "المبلغ (جنيه)",
       },
     },
     dataLabels: {
       enabled: true,
       formatter: (val: number) => val.toLocaleString(),
     },
-    colors: ['#1890ff'],
+    colors: ["#1890ff"],
     stroke: {
-      curve: 'smooth',
+      curve: "smooth",
       width: 3,
     },
     fill: {
-      type: 'gradient',
+      type: "gradient",
       gradient: {
-        shade: 'dark',
-        type: 'vertical',
+        shade: "dark",
+        type: "vertical",
         shadeIntensity: 0.3,
         opacityFrom: 0.7,
         opacityTo: 0.2,
@@ -226,7 +212,7 @@ export default function Dashboard() {
 
   const expenseChartSeries = [
     {
-      name: 'إجمالي المصروفات',
+      name: "إجمالي المصروفات",
       data: sortedMonths.map(([_, amount]) => amount),
     },
   ];
@@ -234,11 +220,11 @@ export default function Dashboard() {
   // Expense type chart options
   const expenseTypeChartOptions: ApexOptions = {
     chart: {
-      type: 'donut',
+      type: "donut",
     },
     labels: Object.keys(expensesByType),
     legend: {
-      position: 'bottom',
+      position: "bottom",
     },
     dataLabels: {
       enabled: true,
@@ -250,10 +236,10 @@ export default function Dashboard() {
       },
     },
     title: {
-      text: 'توزيع المصروفات حسب النوع',
-      align: 'center',
+      text: "توزيع المصروفات حسب النوع",
+      align: "center",
     },
-    colors: ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1'],
+    colors: ["#1890ff", "#52c41a", "#faad14", "#f5222d", "#722ed1"],
     responsive: [
       {
         breakpoint: 480,
@@ -262,7 +248,7 @@ export default function Dashboard() {
             width: 300,
           },
           legend: {
-            position: 'bottom',
+            position: "bottom",
           },
         },
       },
@@ -274,57 +260,55 @@ export default function Dashboard() {
   // Table columns for recent expenses
   const expensesColumns = [
     {
-      title: 'الوصف',
-      dataIndex: 'description',
-      key: 'description',
+      title: "الوصف",
+      dataIndex: "description",
+      key: "description",
       ellipsis: true,
     },
     {
-      title: 'المبلغ',
-      dataIndex: 'amount',
-      key: 'amount',
+      title: "المبلغ",
+      dataIndex: "amount",
+      key: "amount",
       render: (amount: number) => `${Number(amount).toLocaleString()} جنيه`,
     },
     {
-      title: 'النوع',
-      dataIndex: 'expenseType',
-      key: 'expenseType',
-      render: (type: string) => (
-        <Tag color="blue">{type}</Tag>
-      ),
+      title: "النوع",
+      dataIndex: "expenseType",
+      key: "expenseType",
+      render: (type: string) => <Tag color="blue">{type}</Tag>,
     },
     {
-      title: 'التاريخ',
-      dataIndex: 'date',
-      key: 'date',
-      render: (date: string) => new Date(date).toLocaleDateString('ar-EG'),
+      title: "التاريخ",
+      dataIndex: "date",
+      key: "date",
+      render: (date: string) => new Date(date).toLocaleDateString("ar-EG"),
     },
   ];
 
   // Table columns for low stock consumables
   const consumablesColumns = [
     {
-      title: 'اسم الصنف',
-      dataIndex: 'name',
-      key: 'name',
+      title: "اسم الصنف",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'الماركة',
-      dataIndex: 'brand',
-      key: 'brand',
-      render: (brand: string) => brand || '-',
+      title: "الماركة",
+      dataIndex: "brand",
+      key: "brand",
+      render: (brand: string) => brand || "-",
     },
     {
-      title: 'الوحدة',
-      dataIndex: 'unit',
-      key: 'unit',
+      title: "الوحدة",
+      dataIndex: "unit",
+      key: "unit",
     },
     {
-      title: 'المخزون',
-      dataIndex: 'stock',
-      key: 'stock',
+      title: "المخزون",
+      dataIndex: "stock",
+      key: "stock",
       render: (stock: number) => (
-        <Tag color={stock < 5 ? 'error' : 'warning'}>{stock}</Tag>
+        <Tag color={stock < 5 ? "error" : "warning"}>{stock}</Tag>
       ),
     },
   ];
@@ -332,31 +316,33 @@ export default function Dashboard() {
   // Table columns for upcoming project deadlines
   const projectsColumns = [
     {
-      title: 'اسم المشروع',
-      dataIndex: 'name',
-      key: 'name',
+      title: "اسم المشروع",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: 'مدير المشروع',
-      dataIndex: 'managerName',
-      key: 'managerName',
+      title: "مدير المشروع",
+      dataIndex: "managerName",
+      key: "managerName",
     },
     {
-      title: 'تاريخ الانتهاء',
-      dataIndex: 'endDate',
-      key: 'endDate',
-      render: (date: string) => new Date(date).toLocaleDateString('ar-EG'),
+      title: "تاريخ الانتهاء",
+      dataIndex: "endDate",
+      key: "endDate",
+      render: (date: string) => new Date(date).toLocaleDateString("ar-EG"),
     },
     {
-      title: 'الأيام المتبقية',
-      key: 'daysRemaining',
+      title: "الأيام المتبقية",
+      key: "daysRemaining",
       render: (_: any, record: any) => {
         const endDate = new Date(record.endDate);
-        const daysRemaining = Math.ceil((endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysRemaining = Math.ceil(
+          (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
 
-        let color = 'green';
-        if (daysRemaining <= 7) color = 'red';
-        else if (daysRemaining <= 14) color = 'orange';
+        let color = "green";
+        if (daysRemaining <= 7) color = "red";
+        else if (daysRemaining <= 14) color = "orange";
 
         return <Tag color={color}>{daysRemaining} يوم</Tag>;
       },
@@ -366,40 +352,43 @@ export default function Dashboard() {
   // Table columns for recent attendance
   const attendanceColumns = [
     {
-      title: 'الموظف',
-      dataIndex: ['employee', 'name'],
-      key: 'employeeName',
+      title: "الموظف",
+      dataIndex: ["employee", "name"],
+      key: "employeeName",
     },
     {
-      title: 'التاريخ',
-      dataIndex: 'date',
-      key: 'date',
-      render: (date: string) => new Date(date).toLocaleDateString('ar-EG'),
+      title: "التاريخ",
+      dataIndex: "date",
+      key: "date",
+      render: (date: string) => new Date(date).toLocaleDateString("ar-EG"),
     },
     {
-      title: 'وقت الحضور',
-      dataIndex: 'checkIn',
-      key: 'checkIn',
-      render: (time: string) => new Date(time).toLocaleTimeString('ar-EG'),
+      title: "وقت الحضور",
+      dataIndex: "checkIn",
+      key: "checkIn",
+      render: (time: string) => new Date(time).toLocaleTimeString("ar-EG"),
     },
     {
-      title: 'وقت الانصراف',
-      dataIndex: 'checkOut',
-      key: 'checkOut',
-      render: (time: string) => time ? new Date(time).toLocaleTimeString('ar-EG') : '-',
+      title: "وقت الانصراف",
+      dataIndex: "checkOut",
+      key: "checkOut",
+      render: (time: string) =>
+        time ? new Date(time).toLocaleTimeString("ar-EG") : "-",
     },
     {
-      title: 'ساعات إضافية',
-      dataIndex: 'overtimeHours',
-      key: 'overtimeHours',
-      render: (hours: number) => hours ? `${hours} ساعة` : '-',
+      title: "ساعات إضافية",
+      dataIndex: "overtimeHours",
+      key: "overtimeHours",
+      render: (hours: number) => (hours ? `${hours} ساعة` : "-"),
     },
   ];
 
   return (
-    <div className="container p-6">
+    <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <Title level={3} className="mb-0">لوحة التحكم</Title>
+        <Title level={3} className="mb-0">
+          لوحة التحكم
+        </Title>
         {/* <Button type="primary" href="/dashboard" icon={<Bell />}>
           مركز الإشعارات
         </Button> */}
@@ -408,66 +397,78 @@ export default function Dashboard() {
       {/* Critical Alerts Section - Only show when data is loaded */}
       <div className="mb-6 space-y-3">
         {isConsumablesLoading ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-        ) : lowStockConsumables.length > 0 && (
-          <Alert
-            message={
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5" />
-                <span className="font-bold">تنبيه: مستهلكات منخفضة المخزون</span>
-              </div>
-            }
-            description={`يوجد ${lowStockConsumables.length} من المستهلكات على وشك النفاذ وتحتاج إلى إعادة الطلب.`}
-            type="warning"
-            showIcon={false}
-            action={
-              <Button type="link" href="/dashboard/Consumables">
-                فحص المستهلكات
-              </Button>
-            }
-          />
+          <div></div>
+        ) : (
+          lowStockConsumables.length > 0 && (
+            <Alert
+              message={
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span className="font-bold">
+                    تنبيه: مستهلكات منخفضة المخزون
+                  </span>
+                </div>
+              }
+              description={`يوجد ${lowStockConsumables.length} من المستهلكات على وشك النفاذ وتحتاج إلى إعادة الطلب.`}
+              type="warning"
+              showIcon={false}
+              action={
+                <Button type="link" href="/dashboard/Consumables">
+                  فحص المستهلكات
+                </Button>
+              }
+            />
+          )
         )}
 
         {isCustodiesLoading ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-        ) : lowBudgetCustodies.length > 0 && (
-          <Alert
-            message={
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5" />
-                <span className="font-bold">تنبيه: عهد منخفضة الميزانية</span>
-              </div>
-            }
-            description={`يوجد ${lowBudgetCustodies.length} من العهد بها أقل من 20% من الميزانية المتبقية.`}
-            type="error"
-            showIcon={false}
-            action={
-              <Button type="link" href="/dashboard/Custody">
-                فحص العهد
-              </Button>
-            }
-          />
+          // <Skeleton active paragraph={{ rows: 1 }} />
+          <div></div>
+        ) : (
+          lowBudgetCustodies.length > 0 && (
+            <Alert
+              message={
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5" />
+                  <span className="font-bold">تنبيه: عهد منخفضة الميزانية</span>
+                </div>
+              }
+              description={`يوجد ${lowBudgetCustodies.length} من العهد بها أقل من 20% من الميزانية المتبقية.`}
+              type="error"
+              showIcon={false}
+              action={
+                <Button type="link" href="/dashboard/Custody">
+                  فحص العهد
+                </Button>
+              }
+            />
+          )
         )}
 
         {isProjectsLoading ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-        ) : nearDeadlineProjects.length > 0 && (
-          <Alert
-            message={
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                <span className="font-bold">تنبيه: مشاريع تقترب من الموعد النهائي</span>
-              </div>
-            }
-            description={`يوجد ${nearDeadlineProjects.length} من المشاريع تقترب من موعد التسليم النهائي خلال 14 يوم.`}
-            type="warning"
-            showIcon={false}
-            action={
-              <Button type="link" href="/dashboard/Projects">
-                فحص المشاريع
-              </Button>
-            }
-          />
+          // <Skeleton active paragraph={{ rows: 1 }} />
+          <div></div>
+        ) : (
+          nearDeadlineProjects.length > 0 && (
+            <Alert
+              message={
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  <span className="font-bold">
+                    تنبيه: مشاريع تقترب من الموعد النهائي
+                  </span>
+                </div>
+              }
+              description={`يوجد ${nearDeadlineProjects.length} من المشاريع تقترب من موعد التسليم النهائي خلال 14 يوم.`}
+              type="warning"
+              showIcon={false}
+              action={
+                <Button type="link" href="/dashboard/Projects">
+                  فحص المشاريع
+                </Button>
+              }
+            />
+          )
         )}
 
         {/* {isInvoicesLoading ? (
@@ -492,29 +493,32 @@ export default function Dashboard() {
         )} */}
 
         {isEquipmentLoading ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-        ) : maintenanceEquipment.length > 0 && (
-          <Alert
-            message={
-              <div className="flex items-center gap-2">
-                <Wrench className="h-5 w-5" />
-                <span className="font-bold">معدات تحت الصيانة</span>
-              </div>
-            }
-            description={`يوجد ${maintenanceEquipment.length} من المعدات حالياً تحت الصيانة.`}
-            type="info"
-            showIcon={false}
-            action={
-              <Button type="link" href="/dashboard/Maintenance">
-                فحص الصيانة
-              </Button>
-            }
-          />
+          // <Skeleton active paragraph={{ rows: 1 }} />
+          <div></div>
+        ) : (
+          maintenanceEquipment.length > 0 && (
+            <Alert
+              message={
+                <div className="flex items-center gap-2">
+                  <Wrench className="h-5 w-5" />
+                  <span className="font-bold">معدات تحت الصيانة</span>
+                </div>
+              }
+              description={`يوجد ${maintenanceEquipment.length} من المعدات حالياً تحت الصيانة.`}
+              type="info"
+              showIcon={false}
+              action={
+                <Button type="link" href="/dashboard/Maintenance">
+                  فحص الصيانة
+                </Button>
+              }
+            />
+          )
         )}
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-between gap-6 mb-8">
         <Card className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -530,10 +534,13 @@ export default function Dashboard() {
                 <Statistic
                   value={employees.length}
                   suffix="موظف"
-                  valueStyle={{ color: '#1890ff', fontSize: '1.5rem' }}
+                  valueStyle={{ color: "#1890ff", fontSize: "1.5rem" }}
                 />
                 <div className="mt-2">
-                  <Link href="/dashboard/Employees" className="text-sm text-blue-500 hover:underline">
+                  <Link
+                    href="/dashboard/Employees"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
                     عرض الكل
                   </Link>
                 </div>
@@ -557,14 +564,21 @@ export default function Dashboard() {
                 <Statistic
                   value={consumables.length}
                   suffix="صنف"
-                  valueStyle={{ color: '#52c41a', fontSize: '1.5rem' }}
+                  valueStyle={{ color: "#52c41a", fontSize: "1.5rem" }}
                 />
                 <div className="mt-2 flex items-center justify-between">
-                  <Link href="/dashboard/Consumables" className="text-sm text-blue-500 hover:underline">
+                  <Link
+                    href="/dashboard/Consumables"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
                     عرض الكل
                   </Link>
                   {lowStockConsumables.length > 0 && (
-                    <Badge count={lowStockConsumables.length} overflowCount={9} color="warning" />
+                    <Badge
+                      count={lowStockConsumables.length}
+                      overflowCount={9}
+                      color="warning"
+                    />
                   )}
                 </div>
               </>
@@ -587,14 +601,21 @@ export default function Dashboard() {
                 <Statistic
                   value={equipment.length}
                   suffix="معدة"
-                  valueStyle={{ color: '#faad14', fontSize: '1.5rem' }}
+                  valueStyle={{ color: "#faad14", fontSize: "1.5rem" }}
                 />
                 <div className="mt-2 flex items-center justify-between">
-                  <Link href="/dashboard/Equipment" className="text-sm text-blue-500 hover:underline">
+                  <Link
+                    href="/dashboard/Equipment"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
                     عرض الكل
                   </Link>
                   {maintenanceEquipment.length > 0 && (
-                    <Badge count={maintenanceEquipment.length} overflowCount={9} color="processing" />
+                    <Badge
+                      count={maintenanceEquipment.length}
+                      overflowCount={9}
+                      color="processing"
+                    />
                   )}
                 </div>
               </>
@@ -617,14 +638,21 @@ export default function Dashboard() {
                 <Statistic
                   value={activeProjects.length}
                   suffix="مشروع نشط"
-                  valueStyle={{ color: '#722ed1', fontSize: '1.5rem' }}
+                  valueStyle={{ color: "#722ed1", fontSize: "1.5rem" }}
                 />
                 <div className="mt-2 flex items-center justify-between">
-                  <Link href="/dashboard/Projects" className="text-sm text-blue-500 hover:underline">
+                  <Link
+                    href="/dashboard/Projects"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
                     عرض الكل
                   </Link>
                   {nearDeadlineProjects.length > 0 && (
-                    <Badge count={nearDeadlineProjects.length} overflowCount={9} color="error" />
+                    <Badge
+                      count={nearDeadlineProjects.length}
+                      overflowCount={9}
+                      color="error"
+                    />
                   )}
                 </div>
               </>
@@ -721,7 +749,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </TabPane>
-
+            {/* 
             <TabPane
               tab={
                 <span className="flex items-center gap-2">
@@ -754,7 +782,7 @@ export default function Dashboard() {
                   </Button>
                 </div>
               </div>
-            </TabPane>
+            </TabPane> */}
 
             <TabPane
               tab={
@@ -844,7 +872,9 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4 max-h-80 overflow-auto">
                 {custodies.slice(0, 5).map((custody: any) => {
-                  const percentRemaining = Math.round((custody.remaining / custody.budget) * 100);
+                  const percentRemaining = Math.round(
+                    (custody.remaining / custody.budget) * 100
+                  );
                   let statusColor = "success";
 
                   if (percentRemaining < 20) statusColor = "exception";
@@ -854,18 +884,23 @@ export default function Dashboard() {
                     <div key={custody.id} className="border-b pb-3">
                       <div className="flex justify-between mb-1">
                         <span className="font-medium">{custody.name}</span>
-                        <Tag color={
-                          percentRemaining < 20 ? "red" :
-                            percentRemaining < 50 ? "orange" :
-                              "green"
-                        }>
+                        <Tag
+                          color={
+                            percentRemaining < 20
+                              ? "red"
+                              : percentRemaining < 50
+                              ? "orange"
+                              : "green"
+                          }
+                        >
                           {percentRemaining}%
                         </Tag>
                       </div>
                       <div className="flex justify-between mb-1 text-sm text-gray-500">
                         <span>كود: {custody.code}</span>
                         <span>
-                          {custody.remaining.toLocaleString()} / {custody.budget.toLocaleString()} جنيه
+                          {custody.remaining.toLocaleString()} /{" "}
+                          {custody.budget.toLocaleString()} جنيه
                         </span>
                       </div>
                       <Progress
@@ -873,16 +908,22 @@ export default function Dashboard() {
                         status={statusColor as any}
                         size="small"
                         strokeColor={
-                          percentRemaining < 20 ? "#f5222d" :
-                            percentRemaining < 50 ? "#faad14" :
-                              "#52c41a"
+                          percentRemaining < 20
+                            ? "#f5222d"
+                            : percentRemaining < 50
+                            ? "#faad14"
+                            : "#52c41a"
                         }
                       />
                     </div>
                   );
                 })}
                 <div className="text-left pt-2">
-                  <Button type="link" href="/dashboard/Custody" className="pr-0">
+                  <Button
+                    type="link"
+                    href="/dashboard/Custody"
+                    className="pr-0"
+                  >
                     عرض كل العهد
                   </Button>
                 </div>
@@ -912,11 +953,20 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-3 max-h-80 overflow-auto">
                 {maintenanceEquipment.map((item: any) => (
-                  <div key={item.id} className="flex justify-between items-center border-b pb-3">
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center border-b pb-3"
+                  >
                     <div>
                       <span className="font-medium">{item.name}</span>
-                      {item.brand && <span className="text-xs text-gray-500 block">{item.brand}</span>}
-                      <div className="text-xs text-gray-500">كود: {item.code}</div>
+                      {item.brand && (
+                        <span className="text-xs text-gray-500 block">
+                          {item.brand}
+                        </span>
+                      )}
+                      <div className="text-xs text-gray-500">
+                        كود: {item.code}
+                      </div>
                     </div>
                     <Space>
                       <Badge status="processing" text="تحت الصيانة" />
@@ -925,7 +975,11 @@ export default function Dashboard() {
                   </div>
                 ))}
                 <div className="text-left pt-2">
-                  <Button type="link" href="/dashboard/Maintenance" className="pr-0">
+                  <Button
+                    type="link"
+                    href="/dashboard/Maintenance"
+                    className="pr-0"
+                  >
                     عرض تفاصيل الصيانة
                   </Button>
                 </div>
@@ -941,36 +995,42 @@ export default function Dashboard() {
 // Helper function to calculate expense data
 function calculateExpenseData(expenses: any[]) {
   // Calculate monthly expenses
-  const monthlyExpenses = expenses.reduce((acc: Record<string, number>, expense: any) => {
-    const date = new Date(expense.date);
-    const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
+  const monthlyExpenses = expenses.reduce(
+    (acc: Record<string, number>, expense: any) => {
+      const date = new Date(expense.date);
+      const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
 
-    if (!acc[monthYear]) {
-      acc[monthYear] = 0;
-    }
+      if (!acc[monthYear]) {
+        acc[monthYear] = 0;
+      }
 
-    acc[monthYear] += Number(expense.amount);
-    return acc;
-  }, {});
+      acc[monthYear] += Number(expense.amount);
+      return acc;
+    },
+    {}
+  );
 
   // Sort months for the chart
   const sortedMonths = Object.entries(monthlyExpenses).sort((a, b) => {
-    const [monthA, yearA] = a[0].split('/').map(Number);
-    const [monthB, yearB] = b[0].split('/').map(Number);
+    const [monthA, yearA] = a[0].split("/").map(Number);
+    const [monthB, yearB] = b[0].split("/").map(Number);
 
     if (yearA !== yearB) return yearA - yearB;
     return monthA - monthB;
   });
 
   // Prepare expense distribution by type
-  const expensesByType = expenses.reduce((acc: Record<string, number>, expense: any) => {
-    if (!acc[expense.expenseType]) {
-      acc[expense.expenseType] = 0;
-    }
+  const expensesByType = expenses.reduce(
+    (acc: Record<string, number>, expense: any) => {
+      if (!acc[expense.expenseType]) {
+        acc[expense.expenseType] = 0;
+      }
 
-    acc[expense.expenseType] += Number(expense.amount);
-    return acc;
-  }, {});
+      acc[expense.expenseType] += Number(expense.amount);
+      return acc;
+    },
+    {}
+  );
 
   return { monthlyExpenses, sortedMonths, expensesByType };
 }

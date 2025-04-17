@@ -24,6 +24,8 @@ import TransactionHistory from "./TransactionHistory";
 import EmployeeReport from "./EmployeeReport";
 import moment from "moment";
 import { ApexOptions } from "apexcharts";
+import { FaAd } from "react-icons/fa";
+import BudgetReport from "./BudgetReport";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -90,6 +92,7 @@ export default function PayrollPage() {
   const [dateRange, setDateRange] = useState<
     [moment.Moment | null, moment.Moment | null] | null
   >(null);
+  const [budgetIsOpen, setBudgetIsOpen] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(false); // حالة الدارك مود
   const queryClient = useQueryClient();
 
@@ -100,7 +103,6 @@ export default function PayrollPage() {
     ).matches;
     setDarkMode(prefersDark);
   }, []);
-
   const fetchData = async <T,>(endpoint: string): Promise<T[]> => {
     try {
       const res = await axios.get(`/api/${endpoint}`);
@@ -116,6 +118,8 @@ export default function PayrollPage() {
   >({
     queryKey: ["custodies"],
     queryFn: () => fetchData<Custody>("custodies"),
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000, // التحديث كل 5 ثواني
   });
 
   const { data: employees = [], isLoading: employeesLoading } = useQuery<
@@ -123,6 +127,7 @@ export default function PayrollPage() {
   >({
     queryKey: ["employees"],
     queryFn: () => fetchData<Employee>("employees"),
+    refetchInterval: 5000, // التحديث كل 5 ثواني
   });
 
   const { data: payrolls = [], isLoading: payrollsLoading } = useQuery<
@@ -130,6 +135,7 @@ export default function PayrollPage() {
   >({
     queryKey: ["payrolls", dateRange],
     queryFn: () => fetchData<Payroll>("payroll"),
+    refetchInterval: 5000, // التحديث كل 5 ثواني
   });
 
   const { data: advances = [], isLoading: advancesLoading } = useQuery<
@@ -137,6 +143,7 @@ export default function PayrollPage() {
   >({
     queryKey: ["advances", dateRange],
     queryFn: () => fetchData<Advance>("advances"),
+    refetchInterval: 5000, // التحديث كل 5 ثواني
   });
 
   const { data: deductions = [], isLoading: deductionsLoading } = useQuery<
@@ -144,11 +151,13 @@ export default function PayrollPage() {
   >({
     queryKey: ["deductions", dateRange],
     queryFn: () => fetchData<Deduction>("deductions"),
+    refetchInterval: 5000, // التحديث كل 5 ثواني
   });
 
   const { data: bonuses = [], isLoading: bonusesLoading } = useQuery<Bonus[]>({
     queryKey: ["bonuses", dateRange],
     queryFn: () => fetchData<Bonus>("bonuses"),
+    refetchInterval: 5000, // التحديث كل 5 ثواني
   });
 
   const totalPayroll = payrolls.reduce(
@@ -265,9 +274,17 @@ export default function PayrollPage() {
             )
           }
           placeholder={["تاريخ البداية", "تاريخ النهاية"]}
-          style={{ width: "100%", maxWidth: 400 }}
+          style={{ width: "100%", maxWidth: 300 }}
         />
         <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+          <Button
+            type="dashed"
+            size="middle"
+            onClick={() => setBudgetIsOpen(true)}
+          >
+            <FaAd />
+            كشف رصيد العاملين
+          </Button>
           {[
             { label: "صرف مرتبات", onClick: () => setIsPayrollModalOpen(true) },
             { label: "صرف سلفة", onClick: () => setIsAdvanceModalOpen(true) },
@@ -524,7 +541,15 @@ export default function PayrollPage() {
       >
         <TransactionHistory />
       </Modal>
-
+      <Modal
+        title="كشف برصيد جميع العاملين"
+        open={budgetIsOpen}
+        onCancel={() => setBudgetIsOpen(false)}
+        footer={null}
+        width={800}
+      >
+        <BudgetReport />
+      </Modal>
       <Modal
         title="كشف حساب الموظف"
         open={isReportModalOpen}
