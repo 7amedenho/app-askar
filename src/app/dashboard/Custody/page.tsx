@@ -25,6 +25,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-hot-toast";
+import SingleCustodyReport from "./singleCustodyReport";
 
 const { Option } = Select;
 
@@ -63,7 +64,7 @@ export default function Page() {
   );
   const [selectedCustody, setSelectedCustody] = useState<Custody | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all"); // "all" أو "active"
-
+  const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
   const {
     data: custodies = [],
     isLoading,
@@ -175,10 +176,10 @@ export default function Page() {
           <PlusCircleIcon size={18} />
           <span>إنشاء عهدة</span>
         </Button>
-        <Button type="text" className="flex items-center gap-2">
+        {/* <Button type="text" className="flex items-center gap-2" onClick={() => setIsReportOpen(true)}>
           <File size={18} />
           <span>تقارير</span>
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -271,8 +272,8 @@ export default function Page() {
                             ? "text-green-700 dark:text-green-300"
                             : item.label === "الحالة" &&
                               custody.status === "inactive"
-                            ? "text-red-700 dark:text-red-300"
-                            : "text-blue-700 dark:text-blue-300"
+                              ? "text-red-700 dark:text-red-300"
+                              : "text-blue-700 dark:text-blue-300"
                         }
                       >
                         {item.value}
@@ -318,6 +319,18 @@ export default function Page() {
           onClose={() => setIsEditOpen(false)}
           custody={selectedCustody}
         />
+      )}
+      {isReportOpen && (
+        <Modal
+          title="تقرير العهدة"
+          open={isReportOpen}
+          onCancel={() => setIsReportOpen(false)}
+          width={1000}
+          footer={null}
+
+        >
+          <SingleCustodyReport />
+        </Modal>
       )}
     </div>
   );

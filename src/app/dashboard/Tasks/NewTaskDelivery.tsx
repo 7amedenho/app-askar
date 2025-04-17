@@ -27,35 +27,41 @@ interface NewTaskDeliveryProps {
 const { Option } = Select;
 const { TextArea } = Input;
 
-export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDeliveryProps) {
+export default function NewTaskDelivery({
+  isOpen,
+  onClose,
+  taskItem,
+}: NewTaskDeliveryProps) {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
-  
+
   // Initialize form with current date
   useEffect(() => {
     form.setFieldsValue({
       taskItemId: taskItem.id,
       date: dayjs(),
-      quantity: 1
+      quantity: 1,
     });
   }, [form, taskItem]);
-  
+
   // Fetch employees
   const { data: employees = [], isLoading: isEmployeesLoading } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const response = await axios.get("/api/employees");
       return response.data;
-    }
+    },
   });
-  
+
   const mutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await axios.post("/api/tasks/deliveries", data);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskItems", "taskDeliveries"] });
+      queryClient.invalidateQueries({
+        queryKey: ["taskItems", "taskDeliveries"],
+      });
       toast.success("تم تسجيل التسليم بنجاح");
       form.resetFields();
       onClose();
@@ -64,7 +70,7 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
       toast.error(error.response?.data?.error || "حدث خطأ أثناء تسجيل التسليم");
     },
   });
-  
+
   const handleSubmit = () => {
     form.validateFields().then((values) => {
       // Convert date object to string
@@ -72,11 +78,11 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
         ...values,
         date: values.date.toISOString(),
       };
-      
+
       mutation.mutate(data);
     });
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-xl p-6 rounded-lg shadow-lg">
@@ -85,17 +91,28 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
             تسليم قطعة لموظف
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="mb-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700">
           <p className="font-semibold">القطعة: {taskItem.name}</p>
-          <p className="text-gray-600">الكمية المتاحة: <span className={taskItem.quantity > 0 ? "text-green-600 font-bold" : "text-red-600 font-bold"}>{taskItem.quantity}</span></p>
+          <p className="text-gray-600">
+            الكمية المتاحة:{" "}
+            <span
+              className={
+                taskItem.quantity > 0
+                  ? "text-green-600 font-bold"
+                  : "text-red-600 font-bold"
+              }
+            >
+              {taskItem.quantity}
+            </span>
+          </p>
         </div>
-        
+
         <Form form={form} layout="vertical" className="mt-4">
           <Form.Item name="taskItemId" hidden>
             <Input />
           </Form.Item>
-          
+
           <Form.Item
             name="employeeId"
             label="الموظف"
@@ -106,6 +123,7 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
               placeholder="اختر الموظف"
               optionFilterProp="children"
               loading={isEmployeesLoading}
+              getPopupContainer={(triggerNode) => triggerNode.parentNode}
               size="large"
               filterOption={(input, option) =>
                 (option?.children as unknown as string)
@@ -120,21 +138,25 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
               ))}
             </Select>
           </Form.Item>
-          
+
           <Form.Item
             name="quantity"
             label="الكمية"
             rules={[
               { required: true, message: "يرجى إدخال الكمية" },
-              { type: "number", min: 1, message: "يجب أن تكون الكمية أكبر من 0" },
+              {
+                type: "number",
+                min: 1,
+                message: "يجب أن تكون الكمية أكبر من 0",
+              },
               {
                 validator: (_, value) => {
                   if (value > taskItem.quantity) {
                     return Promise.reject("الكمية أكبر من المتاح في المخزون");
                   }
                   return Promise.resolve();
-                }
-              }
+                },
+              },
             ]}
           >
             <InputNumber
@@ -145,34 +167,26 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
               max={taskItem.quantity}
             />
           </Form.Item>
-          
+
           <Form.Item
             name="date"
             label="تاريخ التسليم"
             rules={[{ required: true, message: "يرجى اختيار تاريخ التسليم" }]}
           >
-            <DatePicker 
-              size="large" 
-              style={{ width: "100%" }} 
+            <DatePicker
+              size="large"
+              style={{ width: "100%" }}
               format="YYYY-MM-DD"
             />
           </Form.Item>
-          
-          <Form.Item
-            name="notes"
-            label="ملاحظات"
-          >
-            <TextArea
-              rows={3}
-              placeholder="أي ملاحظات إضافية"
-            />
+
+          <Form.Item name="notes" label="ملاحظات">
+            <TextArea rows={3} placeholder="أي ملاحظات إضافية" />
           </Form.Item>
         </Form>
-        
+
         <DialogFooter className="flex justify-between gap-2 mt-6">
-          <Button onClick={onClose}>
-            إلغاء
-          </Button>
+          <Button onClick={onClose}>إلغاء</Button>
           <Button
             type="primary"
             onClick={handleSubmit}
@@ -185,4 +199,4 @@ export default function NewTaskDelivery({ isOpen, onClose, taskItem }: NewTaskDe
       </DialogContent>
     </Dialog>
   );
-} 
+}

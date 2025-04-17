@@ -11,13 +11,11 @@ interface Supplier {
   name: string;
 }
 
-interface NewConsumableProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface ConsumableVoid {
+  onCancel: () => void;
 }
-
 // إعدادات النموذج
-const NewConsumable = ({ isOpen, onClose }: NewConsumableProps) => {
+const NewConsumable = ({ onCancel }: ConsumableVoid) => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
@@ -33,7 +31,6 @@ const NewConsumable = ({ isOpen, onClose }: NewConsumableProps) => {
       const response = await axios.get("/api/suppliers");
       return response.data;
     },
-    enabled: isOpen,
   });
 
   // إضافة مستهلك جديد
@@ -47,7 +44,7 @@ const NewConsumable = ({ isOpen, onClose }: NewConsumableProps) => {
       toast.success("تم إضافة المستهلك بنجاح");
       form.resetFields();
       setIsFormDirty(false);
-      onClose();
+      onCancel();
     },
     onError: (error: any) => {
       toast.error(
@@ -82,11 +79,9 @@ const NewConsumable = ({ isOpen, onClose }: NewConsumableProps) => {
         onOk: () => {
           form.resetFields();
           setIsFormDirty(false);
-          onClose();
         },
       });
     } else {
-      onClose();
     }
   };
 
@@ -94,116 +89,105 @@ const NewConsumable = ({ isOpen, onClose }: NewConsumableProps) => {
     <App>
       {" "}
       {/* Wrap Modal and Form in App */}
-      <Modal
-        title="إضافة مستهلك جديد"
-        open={isOpen}
-        onCancel={handleCancel}
-        footer={null}
-        width={800}
-        className="rounded-lg"
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        onValuesChange={handleValuesChange}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4"
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          onValuesChange={handleValuesChange}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4"
+        {/* اسم المستهلك */}
+        <Form.Item
+          name="name"
+          label="اسم المستهلك"
+          rules={[{ required: true, message: "الرجاء إدخال اسم المستهلك" }]}
         >
-          {/* اسم المستهلك */}
-          <Form.Item
-            name="name"
-            label="اسم المستهلك"
-            rules={[{ required: true, message: "الرجاء إدخال اسم المستهلك" }]}
+          <Input
+            placeholder="أدخل اسم المستهلك"
+            className="rounded-lg border-gray-300"
+            size="large"
+          />
+        </Form.Item>
+
+        {/* وحدة القياس */}
+        <Form.Item
+          name="unit"
+          label="وحدة القياس"
+          rules={[{ required: true, message: "الرجاء إدخال وحدة القياس" }]}
+        >
+          <Input
+            placeholder="مثال: كيس، متر، كيلو"
+            className="rounded-lg border-gray-300"
+            size="large"
+            onChange={(e) => {
+              setUnit(e.target.value);
+            }}
+          />
+        </Form.Item>
+
+        {/* الماركة */}
+        <Form.Item name="brand" label="الماركة">
+          <Input
+            placeholder="أدخل الماركة (اختياري)"
+            className="rounded-lg border-gray-300"
+            size="large"
+          />
+        </Form.Item>
+
+        {/* الكمية المتوفرة */}
+        <Form.Item
+          name="stock"
+          label="الكمية المتوفرة"
+          rules={[{ required: true, message: "الرجاء إدخال الكمية المتوفرة" }]}
+        >
+          <InputNumber
+            placeholder="أدخل الكمية"
+            className="w-full rounded-lg border-gray-300"
+            size="large"
+            addonAfter={unit || "وحدة"}
+          />
+        </Form.Item>
+
+        {/* المورد */}
+        <Form.Item
+          name="supplierId"
+          label="المورد"
+          rules={[{ required: true, message: "الرجاء اختيار المورد" }]}
+        >
+          <Select
+            placeholder="اختر المورد"
+            loading={suppliersLoading}
+            size="large"
+            className="rounded-lg"
           >
-            <Input
-              placeholder="أدخل اسم المستهلك"
-              className="rounded-lg border-gray-300"
-              size="large"
-            />
-          </Form.Item>
+            {suppliers.map((supplier) => (
+              <Select.Option key={supplier.id} value={supplier.id}>
+                {supplier.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
 
-          {/* وحدة القياس */}
-          <Form.Item
-            name="unit"
-            label="وحدة القياس"
-            rules={[{ required: true, message: "الرجاء إدخال وحدة القياس" }]}
+        {/* أزرار التحكم */}
+        <div className="col-span-3 flex justify-end gap-2 mt-4">
+          <Button
+            onClick={handleCancel}
+            className="rounded-lg border-gray-300 text-gray-500 hover:text-gray-700"
+            size="large"
           >
-            <Input
-              placeholder="مثال: كيس، متر، كيلو"
-              className="rounded-lg border-gray-300"
-              size="large"
-              onChange={(e) => {
-                setUnit(e.target.value);
-              }}
-            />
-          </Form.Item>
-
-          {/* الماركة */}
-          <Form.Item name="brand" label="الماركة">
-            <Input
-              placeholder="أدخل الماركة (اختياري)"
-              className="rounded-lg border-gray-300"
-              size="large"
-            />
-          </Form.Item>
-
-          {/* الكمية المتوفرة */}
-          <Form.Item
-            name="stock"
-            label="الكمية المتوفرة"
-            rules={[
-              { required: true, message: "الرجاء إدخال الكمية المتوفرة" },
-            ]}
+            إلغاء
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            className="rounded-lg"
+            size="large"
           >
-            <InputNumber
-              placeholder="أدخل الكمية"
-              className="w-full rounded-lg border-gray-300"
-              size="large"
-              addonAfter={unit || "وحدة"}
-            />
-          </Form.Item>
-
-          {/* المورد */}
-          <Form.Item
-            name="supplierId"
-            label="المورد"
-            rules={[{ required: true, message: "الرجاء اختيار المورد" }]}
-          >
-            <Select
-              placeholder="اختر المورد"
-              loading={suppliersLoading}
-              size="large"
-              className="rounded-lg"
-            >
-              {suppliers.map((supplier) => (
-                <Select.Option key={supplier.id} value={supplier.id}>
-                  {supplier.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          {/* أزرار التحكم */}
-          <div className="col-span-3 flex justify-end gap-2 mt-4">
-            <Button
-              onClick={handleCancel}
-              className="rounded-lg border-gray-300 text-gray-500 hover:text-gray-700"
-              size="large"
-            >
-              إلغاء
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              className="rounded-lg"
-              size="large"
-            >
-              إضافة
-            </Button>
-          </div>
-        </Form>
-      </Modal>
+            إضافة
+          </Button>
+        </div>
+      </Form>
     </App>
   );
 };

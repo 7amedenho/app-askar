@@ -2,8 +2,26 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { Button, Table, Tag, Modal, Input, Form, Select, Spin, Badge, Tooltip } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, WarningOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Table,
+  Tag,
+  Modal,
+  Input,
+  Form,
+  Select,
+  Spin,
+  Badge,
+  Tooltip,
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  WarningOutlined,
+  FilterOutlined,
+} from "@ant-design/icons";
 import { toast } from "react-hot-toast";
 import { Card } from "@/components/ui/card";
 import { Printer } from "lucide-react";
@@ -33,7 +51,9 @@ export default function EquipmentPage() {
   const [filterSupplier, setFilterSupplier] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(
+    null
+  );
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -57,10 +77,19 @@ export default function EquipmentPage() {
 
   // حساب إحصائيات المعدات
   const statsData = {
-    total: equipment.reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
-    available: equipment.filter((item: Equipment) => item.status === "available").reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
-    underMaintenance: equipment.filter((item: Equipment) => item.status === "under_maintenance").reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
-    broken: equipment.filter((item: Equipment) => item.status === "broken").reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
+    total: equipment.reduce(
+      (sum: number, item: Equipment) => sum + item.quantity,
+      0
+    ),
+    available: equipment
+      .filter((item: Equipment) => item.status === "available")
+      .reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
+    underMaintenance: equipment
+      .filter((item: Equipment) => item.status === "under_maintenance")
+      .reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
+    broken: equipment
+      .filter((item: Equipment) => item.status === "broken")
+      .reduce((sum: number, item: Equipment) => sum + item.quantity, 0),
   };
 
   const deleteEquipmentMutation = useMutation({
@@ -105,25 +134,35 @@ export default function EquipmentPage() {
     const matchesSearch =
       item.name.toLowerCase().includes(searchText.toLowerCase()) ||
       item.code.toLowerCase().includes(searchText.toLowerCase()) ||
-      (item.brand && item.brand.toLowerCase().includes(searchText.toLowerCase()));
+      (item.brand &&
+        item.brand.toLowerCase().includes(searchText.toLowerCase()));
 
     // تصفية حسب الحالة
     const matchesStatus = filterStatus ? item.status === filterStatus : true;
 
     // تصفية حسب المورد
-    const matchesSupplier = filterSupplier ? item.supplier.id === filterSupplier : true;
+    const matchesSupplier = filterSupplier
+      ? item.supplier.id === filterSupplier
+      : true;
 
     return matchesSearch && matchesStatus && matchesSupplier;
   });
 
   // دالة تغيير حالة المعدة
-  const changeEquipmentStatus = async (equipment: Equipment, newStatus: string) => {
+  const changeEquipmentStatus = async (
+    equipment: Equipment,
+    newStatus: string
+  ) => {
     try {
-      await axios.put(`/api/equipment/${equipment.id}/status`, { status: newStatus });
+      await axios.put(`/api/equipment/${equipment.id}/status`, {
+        status: newStatus,
+      });
       queryClient.invalidateQueries({ queryKey: ["equipment"] });
       toast.success("تم تحديث حالة المعدة بنجاح");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء تحديث حالة المعدة");
+      toast.error(
+        error.response?.data?.message || "حدث خطأ أثناء تحديث حالة المعدة"
+      );
     }
   };
 
@@ -186,8 +225,18 @@ export default function EquipmentPage() {
       ],
       onFilter: (value: string, record: Equipment) => record.status === value,
       render: (status: string) => {
-        const color = status === "available" ? "green" : status === "under_maintenance" ? "orange" : "red";
-        const text = status === "available" ? "متاح" : status === "under_maintenance" ? "تحت الصيانة" : "تالف";
+        const color =
+          status === "available"
+            ? "green"
+            : status === "under_maintenance"
+            ? "orange"
+            : "red";
+        const text =
+          status === "available"
+            ? "متاح"
+            : status === "under_maintenance"
+            ? "تحت الصيانة"
+            : "تالف";
         return <Tag color={color}>{text}</Tag>;
       },
     },
@@ -196,11 +245,7 @@ export default function EquipmentPage() {
       key: "actions",
       render: (_: any, record: Equipment) => (
         <div className="flex gap-2">
-          <Button
-            type="text"
-            onClick={() => handleEdit(record)}
-            title="تعديل"
-          >
+          <Button type="text" onClick={() => handleEdit(record)} title="تعديل">
             <EditOutlined className="text-blue-500" />
           </Button>
           <Button
@@ -222,28 +267,36 @@ export default function EquipmentPage() {
 
       {/* إحصائيات المعدات */}
       <div className="grid grid-cols-4 gap-4">
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className=" border-blue-200">
           <div className="text-center">
             <p className="text-gray-500 mb-1">إجمالي كميات المعدات</p>
-            <p className="text-3xl font-bold text-blue-600">{statsData.total}</p>
+            <p className="text-3xl font-bold text-blue-600">
+              {statsData.total}
+            </p>
           </div>
         </Card>
-        <Card className="bg-green-50 border-green-200">
+        <Card className=" border-green-200">
           <div className="text-center">
             <p className="text-gray-500 mb-1">كميات المعدات المتاحة</p>
-            <p className="text-3xl font-bold text-green-600">{statsData.available}</p>
+            <p className="text-3xl font-bold text-green-600">
+              {statsData.available}
+            </p>
           </div>
         </Card>
-        <Card className="bg-orange-50 border-orange-200">
+        <Card className=" border-orange-200">
           <div className="text-center">
             <p className="text-gray-500 mb-1">كميات تحت الصيانة</p>
-            <p className="text-3xl font-bold text-orange-500">{statsData.underMaintenance}</p>
+            <p className="text-3xl font-bold text-orange-500">
+              {statsData.underMaintenance}
+            </p>
           </div>
         </Card>
-        <Card className="bg-red-50 border-red-200">
+        <Card className=" border-red-200">
           <div className="text-center">
             <p className="text-gray-500 mb-1">كميات المعدات التالفة</p>
-            <p className="text-3xl font-bold text-red-600">{statsData.broken}</p>
+            <p className="text-3xl font-bold text-red-600">
+              {statsData.broken}
+            </p>
           </div>
         </Card>
       </div>
@@ -260,7 +313,7 @@ export default function EquipmentPage() {
         <div className="flex-1 min-w-[200px] flex gap-2">
           <Select
             placeholder="تصفية حسب الحالة"
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             onChange={(value) => setFilterStatus(value)}
             allowClear
             onClear={() => setFilterStatus(null)}
@@ -273,7 +326,7 @@ export default function EquipmentPage() {
         <div className="flex-1 min-w-[200px] flex gap-2">
           <Select
             placeholder="تصفية حسب المورد"
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
             onChange={(value) => setFilterSupplier(value)}
             allowClear
             onClear={() => setFilterSupplier(null)}
@@ -357,11 +410,11 @@ export default function EquipmentPage() {
         okButtonProps={{ danger: true }}
       >
         <p>
-          هل أنت متأكد من حذف المعدة:{" "}
-          <strong>{selectedEquipment?.name}</strong>؟
+          هل أنت متأكد من حذف المعدة: <strong>{selectedEquipment?.name}</strong>
+          ؟
         </p>
         <p>لا يمكن التراجع عن هذا الإجراء.</p>
       </Modal>
     </div>
   );
-} 
+}

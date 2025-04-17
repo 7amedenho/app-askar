@@ -353,7 +353,16 @@ export default function Page() {
       </Modal>
 
       {isNewOpen && (
-        <NewConsumable isOpen={isNewOpen} onClose={() => setIsNewOpen(false)} />
+        <Modal
+          title="إضافة مستهلك جديد"
+          open={isNewOpen}
+          onCancel={() => setIsNewOpen(false)}
+          footer={null}
+          width={800}
+          className="rounded-lg"
+        >
+          <NewConsumable onCancel={() => setIsNewOpen(false)} />
+        </Modal>
       )}
 
       {isEditOpen && selectedConsumable && (

@@ -175,10 +175,10 @@ export default function Page() {
           <PlusCircleIcon size={18} />
           <span>إنشاء مشروع</span>
         </Button>
-        <Button type="text" className="flex items-center gap-2">
+        {/* <Button type="text" className="flex items-center gap-2">
           <File size={18} />
           <span>تقارير</span>
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -265,12 +265,12 @@ export default function Page() {
                         <p
                           className={
                             item.label === "الحالة" &&
-                            project.status === "active"
+                              project.status === "active"
                               ? "text-green-700 dark:text-green-300"
                               : item.label === "الحالة" &&
                                 project.status === "inactive"
-                              ? "text-red-700 dark:text-red-300"
-                              : "text-blue-700 dark:text-blue-300"
+                                ? "text-red-700 dark:text-red-300"
+                                : "text-blue-700 dark:text-blue-300"
                           }
                         >
                           {item.value}

@@ -55,7 +55,9 @@ export default function NewTaskItem({ isOpen, onClose }: NewTaskItemProps) {
 
         <div className="mb-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-200 dark:border-gray-700">
           <p className="font-semibold">إضافة قطعة جديدة إلى المخزون</p>
-          <p className="text-sm text-gray-500">أدخل اسم القطعة والكمية المتوفرة</p>
+          <p className="text-sm text-gray-500">
+            أدخل اسم القطعة والكمية المتوفرة
+          </p>
         </div>
 
         <Form form={form} layout="vertical" className="mt-4">
@@ -72,7 +74,11 @@ export default function NewTaskItem({ isOpen, onClose }: NewTaskItemProps) {
             label="الكمية"
             rules={[
               { required: true, message: "يرجى إدخال الكمية" },
-              { type: "number", min: 1, message: "يجب أن تكون الكمية أكبر من 0" }
+              {
+                type: "number",
+                min: 1,
+                message: "يجب أن تكون الكمية أكبر من 0",
+              },
             ]}
           >
             <InputNumber
@@ -85,9 +91,7 @@ export default function NewTaskItem({ isOpen, onClose }: NewTaskItemProps) {
         </Form>
 
         <DialogFooter className="flex justify-between gap-2 mt-6">
-          <Button onClick={onClose}>
-            إلغاء
-          </Button>
+          <Button onClick={onClose}>إلغاء</Button>
           <Button
             type="primary"
             onClick={handleSubmit}
@@ -99,4 +103,4 @@ export default function NewTaskItem({ isOpen, onClose }: NewTaskItemProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}

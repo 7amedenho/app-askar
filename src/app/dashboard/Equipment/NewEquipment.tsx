@@ -48,7 +48,9 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء إضافة المعدة");
+      toast.error(
+        error.response?.data?.message || "حدث خطأ أثناء إضافة المعدة"
+      );
     },
   });
 
@@ -62,7 +64,12 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
         <DialogHeader>
           <DialogTitle>إضافة معدة جديدة</DialogTitle>
         </DialogHeader>
-        <Form form={form} layout="vertical" onFinish={onFinish} className="py-4">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          className="py-4"
+        >
           <div className="grid grid-cols-2 gap-4">
             <Form.Item
               name="name"
@@ -98,7 +105,9 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
               className="col-span-2"
               rules={[{ required: true, message: "يرجى اختيار المورد" }]}
             >
-              <Select>
+              <Select
+                getPopupContainer={(triggerNode) => triggerNode.parentNode}
+              >
                 {suppliers.map((supplier: Supplier) => (
                   <Option key={supplier.id} value={supplier.id}>
                     {supplier.name}
@@ -122,4 +131,4 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}
