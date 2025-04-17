@@ -4,7 +4,7 @@ import { Form, Input, Button, Card, Typography, message, Alert } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-
+import toast from "react-hot-toast";
 const { Title, Text } = Typography;
 
 export default function LoginPage() {
@@ -57,6 +57,7 @@ export default function LoginPage() {
 
       if (!response.ok) {
         throw new Error(data.error || "حدث خطأ أثناء تسجيل الدخول");
+        toast.error(data.error || "حدث خطأ أثناء تسجيل الدخول");
       }
 
       // حفظ بيانات المستخدم في localStorage
@@ -64,11 +65,13 @@ export default function LoginPage() {
 
       // إطلاق حدث لتحديث المكونات الأخرى
       window.dispatchEvent(new Event("storage"));
-
+      toast.success(data.message || "تم تسجيل الدخول بنجاح");
       message.success("تم تسجيل الدخول بنجاح");
+
       router.push("/dashboard");
     } catch (error: any) {
       message.error(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

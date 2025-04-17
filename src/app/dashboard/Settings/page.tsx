@@ -12,6 +12,7 @@ import {
   Divider,
 } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import toast from "react-hot-toast";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -68,23 +69,30 @@ export default function SettingsPage() {
         localStorage.setItem("userData", JSON.stringify(updatedUserData));
         setUserData(updatedUserData);
         message.success(data.message || "تم تحديث الملف الشخصي بنجاح");
-
+        toast.success(data.message || "تم تحديث الملف الشخصي بنجاح");
         // Trigger storage event for other components to update
         window.dispatchEvent(new Event("storage"));
       } else {
         message.error(data.error || "فشل تحديث الملف الشخصي");
+        toast.error(data.error || "فشل تحديث الملف الشخصي");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
       message.error("حدث خطأ أثناء تحديث الملف الشخصي");
+      toast.error("حدث خطأ أثناء تحديث الملف الشخصي");
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePasswordUpdate = async (values: { currentPassword: string; newPassword: string; confirmPassword: string }) => {
+  const handlePasswordUpdate = async (values: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
     if (!userData) {
       message.error("بيانات المستخدم غير متوفرة");
+      toast.error("بيانات المستخدم غير متوفرة");
       return;
     }
 
@@ -114,12 +122,15 @@ export default function SettingsPage() {
 
       if (response.ok) {
         message.success(data.message || "تم تحديث كلمة المرور بنجاح");
-        form.resetFields(['currentPassword', 'newPassword', 'confirmPassword']);
+        toast.success(data.message || "تم تحديث كلمة المرور بنجاح");
+        form.resetFields(["currentPassword", "newPassword", "confirmPassword"]);
       } else {
         message.error(data.error || "فشل تحديث كلمة المرور");
+        toast.error(data.error || "فشل تحديث كلمة المرور");
       }
     } catch (error) {
       console.error("Error updating password:", error);
+      toast.error("حدث خطأ أثناء تحديث كلمة المرور");
       message.error("حدث خطأ أثناء تحديث كلمة المرور");
     } finally {
       setLoading(false);
@@ -195,7 +206,10 @@ export default function SettingsPage() {
                   },
                 ]}
               >
-                <Input.Password placeholder="أدخل كلمة المرور الحالية" size="large" />
+                <Input.Password
+                  placeholder="أدخل كلمة المرور الحالية"
+                  size="large"
+                />
               </Form.Item>
 
               <Form.Item
@@ -208,7 +222,10 @@ export default function SettingsPage() {
                   },
                 ]}
               >
-                <Input.Password placeholder="أدخل كلمة المرور الجديدة" size="large" />
+                <Input.Password
+                  placeholder="أدخل كلمة المرور الجديدة"
+                  size="large"
+                />
               </Form.Item>
 
               <Form.Item
@@ -221,7 +238,10 @@ export default function SettingsPage() {
                   },
                 ]}
               >
-                <Input.Password placeholder="أدخل كلمة المرور الجديدة مرة أخرى" size="large" />
+                <Input.Password
+                  placeholder="أدخل كلمة المرور الجديدة مرة أخرى"
+                  size="large"
+                />
               </Form.Item>
 
               <Form.Item>
@@ -240,4 +260,4 @@ export default function SettingsPage() {
       </Card>
     </div>
   );
-} 
+}
