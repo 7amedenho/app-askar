@@ -25,7 +25,8 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-hot-toast";
-import SingleCustodyReport from "./singleCustodyReport";
+import CustodyReports from "./reports";
+import CustodyReport from "./CustodyReport";
 
 const { Option } = Select;
 
@@ -176,10 +177,10 @@ export default function Page() {
           <PlusCircleIcon size={18} />
           <span>إنشاء عهدة</span>
         </Button>
-        {/* <Button type="text" className="flex items-center gap-2" onClick={() => setIsReportOpen(true)}>
+        <Button type="text" className="flex items-center gap-2" onClick={() => setIsReportOpen(true)}>
           <File size={18} />
           <span>تقارير</span>
-        </Button> */}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -327,9 +328,8 @@ export default function Page() {
           onCancel={() => setIsReportOpen(false)}
           width={1000}
           footer={null}
-
         >
-          <SingleCustodyReport />
+          <CustodyReport isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} />
         </Modal>
       )}
     </div>

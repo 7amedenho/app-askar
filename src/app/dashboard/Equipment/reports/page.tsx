@@ -94,8 +94,8 @@ export default function EquipmentReportsPage() {
       @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
       body {
         font-family: 'Cairo', sans-serif;
-        margin: 0;
-        padding: 1px;
+        margin: 10px;
+        padding: 20px;
         background-color: #f0f4f8;
         color: #2c3e50;
       }
@@ -270,24 +270,20 @@ export default function EquipmentReportsPage() {
       <h2>تقرير المعدات</h2>
 
       <div class="filters">
-        ${
-          selectedStatus
-            ? `<p>الحالة: ${
-                selectedStatus === "available"
-                  ? "متاح"
-                  : selectedStatus === "under_maintenance"
-                  ? "تحت الصيانة"
-                  : "تالف"
-              }</p>`
-            : ""
+        ${selectedStatus
+          ? `<p>الحالة: ${selectedStatus === "available"
+            ? "متاح"
+            : selectedStatus === "under_maintenance"
+              ? "تحت الصيانة"
+              : "تالف"
+          }</p>`
+          : ""
         }
-        ${
-          selectedSupplier
-            ? `<p>المورد: ${
-                suppliers?.find((s: any) => s.id === parseInt(selectedSupplier))
-                  ?.name || ""
-              }</p>`
-            : ""
+        ${selectedSupplier
+          ? `<p>المورد: ${suppliers?.find((s: any) => s.id === parseInt(selectedSupplier))
+            ?.name || ""
+          }</p>`
+          : ""
         }
       </div>
 
@@ -302,9 +298,8 @@ export default function EquipmentReportsPage() {
         </div>
         <div class="stat-box">
           <div class="stat-title">تحت الصيانة</div>
-          <div class="stat-value under_maintenance">${
-            statsData.underMaintenance
-          }</div>
+          <div class="stat-value under_maintenance">${statsData.underMaintenance
+        }</div>
         </div>
         <div class="stat-box">
           <div class="stat-title">المعدات التالفة</div>
@@ -325,8 +320,8 @@ export default function EquipmentReportsPage() {
         </thead>
         <tbody>
           ${filteredEquipment
-            .map(
-              (item: any) => `
+          .map(
+            (item: any) => `
               <tr>
                 <td>${item.code}</td>
                 <td>${item.name}</td>
@@ -334,18 +329,17 @@ export default function EquipmentReportsPage() {
                 <td>${item.brand || "-"}</td>
                 <td>${item.supplier?.name || "-"}</td>
                 <td class="${item.status}">
-                  ${
-                    item.status === "available"
-                      ? "متاح"
-                      : item.status === "under_maintenance"
-                      ? "تحت الصيانة"
-                      : "تالف"
-                  }
+                  ${item.status === "available"
+                ? "متاح"
+                : item.status === "under_maintenance"
+                  ? "تحت الصيانة"
+                  : "تالف"
+              }
                 </td>
               </tr>
             `
-            )
-            .join("")}
+          )
+          .join("")}
         </tbody>
       </table>
 
@@ -404,14 +398,14 @@ export default function EquipmentReportsPage() {
           status === "available"
             ? "green"
             : status === "under_maintenance"
-            ? "orange"
-            : "red";
+              ? "orange"
+              : "red";
         const text =
           status === "available"
             ? "متاح"
             : status === "under_maintenance"
-            ? "تحت الصيانة"
-            : "تالف";
+              ? "تحت الصيانة"
+              : "تالف";
         return <Tag color={color}>{text}</Tag>;
       },
     },

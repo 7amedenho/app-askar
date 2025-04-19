@@ -68,15 +68,15 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          className="py-4"
+          className="py-2"
         >
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <Form.Item
               name="name"
               label="اسم المعدة"
               rules={[{ required: true, message: "يرجى إدخال اسم المعدة" }]}
             >
-              <Input />
+              <Input placeholder="اسم المعدة"/>
             </Form.Item>
 
             <Form.Item
@@ -84,7 +84,7 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
               label="كود المعدة"
               rules={[{ required: true, message: "يرجى إدخال كود المعدة" }]}
             >
-              <Input />
+              <Input placeholder="كود المعدة"/>
             </Form.Item>
 
             <Form.Item
@@ -92,11 +92,11 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
               label="الكمية"
               rules={[{ required: true, message: "يرجى إدخال الكمية" }]}
             >
-              <Input type="number" min={0} />
+              <Input type="number" min={0} placeholder="الكمية"/>
             </Form.Item>
 
             <Form.Item name="brand" label="الماركة">
-              <Input />
+              <Input placeholder="الماركة" />
             </Form.Item>
 
             <Form.Item
@@ -107,6 +107,7 @@ export default function NewEquipment({ isOpen, onClose }: NewEquipmentProps) {
             >
               <Select
                 getPopupContainer={(triggerNode) => triggerNode.parentNode}
+                placeholder="اختر المورد"
               >
                 {suppliers.map((supplier: Supplier) => (
                   <Option key={supplier.id} value={supplier.id}>

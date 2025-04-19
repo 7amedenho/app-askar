@@ -123,11 +123,11 @@ export default function MaintenancePage() {
 
   // إحصائيات الصيانة
   const statsData = {
-    total: maintenance.reduce((sum: number, item: Maintenance) => sum + (item.pendingQuantity || item.equipment.quantity), 0),
-    sent: maintenance.filter((item: Maintenance) => item.status === "sent").reduce((sum: number, item: Maintenance) => sum + (item.pendingQuantity || item.equipment.quantity), 0),
-    returned: maintenance.filter((item: Maintenance) => item.status === "returned").reduce((sum: number, item: Maintenance) => sum + (item.returnedQuantity || 0), 0),
-    broken: maintenance.filter((item: Maintenance) => item.status === "broken").reduce((sum: number, item: Maintenance) => sum + (item.brokenQuantity || 0), 0),
-    fixed: maintenance.filter((item: Maintenance) => item.status === "fixed").reduce((sum: number, item: Maintenance) => sum + (item.returnedQuantity || 0), 0),
+    total: maintenance.reduce((sum, item) => sum + (item.pendingQuantity || item.equipment.quantity), 0),
+    sent: maintenance.filter(item => item.status === "sent").reduce((sum, item) => sum + (item.pendingQuantity || item.equipment.quantity), 0),
+    returned: maintenance.filter(item => item.status === "returned").reduce((sum, item) => sum + (item.returnedQuantity || 0), 0),
+    broken: maintenance.filter(item => item.status === "broken").reduce((sum, item) => sum + (item.brokenQuantity || 0), 0),
+    fixed: maintenance.filter(item => item.status === "fixed").reduce((sum, item) => sum + (item.returnedQuantity || 0), 0),
   };
 
   // تصفية سجلات الصيانة حسب البحث والحالة والمعدة
@@ -352,13 +352,13 @@ export default function MaintenancePage() {
             title="تحديث الحالة"
             icon={<EditOutlined className="text-blue-500" />}
           />
-          <Button
+          {/* <Button
             type="text"
             onClick={() => showDistributeModal(record)}
             disabled={record.status !== "sent"}
             title="توزيع المعدة"
             icon={<ArrowUpRight className="text-green-500" />}
-          />
+          /> */}
           <Button
             type="text"
             onClick={() => showDeleteConfirm(record)}
@@ -375,7 +375,7 @@ export default function MaintenancePage() {
       <h1 className="text-2xl font-semibold text-center">إدارة الصيانة</h1>
 
       {/* إحصائيات الصيانة */}
-      <div className="grid grid-cols-5 gap-4">
+      {/* <div className="grid grid-cols-5 gap-4">
         <Card className="dark border-gray-200">
           <div className="text-center">
             <p className="text-gray-500 mb-1">إجمالي كميات المعدات</p>
@@ -406,7 +406,7 @@ export default function MaintenancePage() {
             <p className="text-3xl font-bold text-blue-600">{statsData.returned}</p>
           </div>
         </Card>
-      </div>
+      </div> */}
 
       {/* أزرار الإجراءات */}
       <div className="flex justify-between items-center mb-4">
@@ -491,6 +491,33 @@ export default function MaintenancePage() {
               pagination={{ pageSize: 10 }}
               locale={{ emptyText: "لا توجد سجلات صيانة" }}
               bordered
+              summary={(pageData) => {
+                const totalPendingQuantity = pageData.reduce(
+                  (sum, item) => sum + (item.pendingQuantity || item.equipment?.quantity || 0),
+                  0
+                );
+                const totalReturnedQuantity = pageData.reduce(
+                  (sum, item) => sum + (item.returnedQuantity || 0),
+                  0
+                );
+                const totalBrokenQuantity = pageData.reduce(
+                  (sum, item) => sum + (item.brokenQuantity || 0),
+                  0
+                );
+
+                return (
+                  <Table.Summary fixed>
+                    <Table.Summary.Row style={{ fontWeight: "bold", color: "#2980b9" }}>
+                      <Table.Summary.Cell index={0} colSpan={3}>الإجمالي</Table.Summary.Cell>
+                      <Table.Summary.Cell index={3}>{totalPendingQuantity.toLocaleString()}</Table.Summary.Cell>
+                      <Table.Summary.Cell index={4}>{totalReturnedQuantity.toLocaleString()}</Table.Summary.Cell>
+                      <Table.Summary.Cell index={5}>{totalBrokenQuantity.toLocaleString()}</Table.Summary.Cell>
+                      <Table.Summary.Cell index={7}>-</Table.Summary.Cell>
+                      
+                    </Table.Summary.Row>
+                  </Table.Summary>
+                );
+              }}
             />
           )}
         </CardContent>
@@ -587,7 +614,7 @@ export default function MaintenancePage() {
             label="الكمية المرسلة للصيانة"
             rules={[{ required: true, message: "يرجى إدخال الكمية" }]}
           >
-            <Input type="number" min={1} />
+            <Input type="number" min={1} placeholder="الكمية المرسلة" />
           </Form.Item>
           <Form.Item
             name="notes"
@@ -622,21 +649,21 @@ export default function MaintenancePage() {
               label="عدد المعدات التي تم إصلاحها"
               rules={[{ required: true, message: "يرجى إدخال العدد" }]}
             >
-              <Input type="number" min={0} />
+              <Input type="number" min={0} placeholder="عدد المعدات التي تم إصلاحها" />
             </Form.Item>
             <Form.Item
               name="brokenQuantity"
               label="عدد المعدات التالفة"
               rules={[{ required: true, message: "يرجى إدخال العدد" }]}
             >
-              <Input type="number" min={0} />
+              <Input type="number" min={0} placeholder="عدد المعدات التالفة" />
             </Form.Item>
             <Form.Item
               name="pendingQuantity"
               label="عدد المعدات المتبقية في الصيانة"
               rules={[{ required: true, message: "يرجى إدخال العدد" }]}
             >
-              <Input type="number" min={0} />
+              <Input type="number" min={0} placeholder="عدد المعدات المتبقية في الصيانة" />
             </Form.Item>
             <Form.Item
               name="notes"

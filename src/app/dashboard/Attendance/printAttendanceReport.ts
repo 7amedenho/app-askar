@@ -9,8 +9,8 @@ export const printEmployeesAttendance = (records: any) => {
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
         body {
           font-family: 'Cairo', sans-serif;
-          margin: 0;
-          padding: 1px;
+          margin: 10px;
+          padding: 20px;
           background-color: #f0f4f8;
           color: #2c3e50;
         }
@@ -180,59 +180,58 @@ export const printEmployeesAttendance = (records: any) => {
           </thead>
           <tbody>
             ${records
-              .map((record: any, index: number) => {
-                const checkInTime = new Date(record.checkIn);
-                const checkOutTime = record.checkOut
-                  ? new Date(record.checkOut)
-                  : null;
-                const hoursWorked = checkOutTime
-                  ? (
-                      (checkOutTime.getTime() - checkInTime.getTime()) /
-                      (1000 * 60 * 60)
-                    ).toFixed(2)
-                  : "--";
+      .map((record: any, index: number) => {
+        const checkInTime = new Date(record.checkIn);
+        const checkOutTime = record.checkOut
+          ? new Date(record.checkOut)
+          : null;
+        const hoursWorked = checkOutTime
+          ? (
+            (checkOutTime.getTime() - checkInTime.getTime()) /
+            (1000 * 60 * 60)
+          ).toFixed(2)
+          : "--";
 
-                let status = "حاضر";
-                let statusClass = "status-present";
+        let status = "حاضر";
+        let statusClass = "status-present";
 
-                if (!record.checkOut) {
-                  status = "لم يسجل خروج";
-                  statusClass = "status-late";
-                } else if (
-                  checkInTime.getHours() >= 8 &&
-                  checkInTime.getMinutes() > 0
-                ) {
-                  status = "متأخر";
-                  statusClass = "status-late";
-                } else if (checkOutTime && checkOutTime.getHours() < 15) {
-                  status = "خروج مبكر";
-                  statusClass = "status-early-leave";
-                }
+        if (!record.checkOut) {
+          status = "لم يسجل خروج";
+          statusClass = "status-late";
+        } else if (
+          checkInTime.getHours() >= 8 &&
+          checkInTime.getMinutes() > 0
+        ) {
+          status = "متأخر";
+          statusClass = "status-late";
+        } else if (checkOutTime && checkOutTime.getHours() < 15) {
+          status = "خروج مبكر";
+          statusClass = "status-early-leave";
+        }
 
-                return `
+        return `
                 <tr>
                   <td>${index + 1}</td>
                   <td>${record.employee.name}</td>
                   <td>${record.employee.jobTitle}</td>
                   <td>${new Date(record.date).toLocaleDateString("ar-EG")}</td>
                   <td>${checkInTime.toLocaleTimeString("ar-EG", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}</td>
-                  <td>${
-                    checkOutTime
-                      ? checkOutTime.toLocaleTimeString("ar-EG", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "--"
-                  }</td>
+          hour: "2-digit",
+          minute: "2-digit",
+        })}</td>
+                  <td>${checkOutTime
+            ? checkOutTime.toLocaleTimeString("ar-EG", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+            : "--"
+          }</td>
                   <td>${hoursWorked}</td>
                   <td><span class="${statusClass}">${status}</span></td>
                 </tr>
               `;
-              })
-              .join("")}
+      })
+      .join("")}
           </tbody>
         </table>
 

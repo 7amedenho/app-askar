@@ -74,7 +74,7 @@ export default function NewPayroll({
       )?.format("YYYY-MM-DD");
       const endDate = (
         selectedPeriod ? selectedPeriod[1] : dateRange?.[1]
-      )?.format("YYYY-MM-DD");
+      )?.add(1, 'day').format("YYYY-MM-DD");
       if (!startDate || !endDate) return [];
       const res = await axios.get(
         `/api/attendance?startDate=${startDate}&endDate=${endDate}`
@@ -153,7 +153,7 @@ export default function NewPayroll({
       )?.format("YYYY-MM-DD");
       const endDate = (
         selectedPeriod ? selectedPeriod[1] : dateRange?.[1]
-      )?.format("YYYY-MM-DD");
+      )?.add(1, 'day').format("YYYY-MM-DD");
 
       if (!startDate || !endDate) {
         setLoading(false);
@@ -245,9 +245,9 @@ export default function NewPayroll({
       prev.map((item) =>
         item.employeeId === employeeId
           ? {
-              ...item,
-              paidAmount: Math.min(item.budget),
-            }
+            ...item,
+            paidAmount: Math.min(item.budget),
+          }
           : item
       )
     );
@@ -294,7 +294,7 @@ export default function NewPayroll({
           endDate: (selectedPeriod
             ? selectedPeriod[1]
             : dateRange?.[1]
-          )?.format("YYYY-MM-DD"),
+          )?.add(1, 'day').format("YYYY-MM-DD"),
           dailySalary: item.dailySalary,
           daysWorked: item.daysWorked,
           totalSalary: item.totalSalary,
@@ -391,7 +391,8 @@ export default function NewPayroll({
 
   return (
     <div>
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="inline">
+
         <Form.Item
           name="period"
           label="الفترة"
@@ -416,13 +417,14 @@ export default function NewPayroll({
 
         <Form.Item
           name="employees"
+
           label="الموظفين"
           rules={[{ required: true, message: "يرجى اختيار الموظفين" }]}
         >
           <Select
             mode="multiple"
             placeholder="اختر الموظفين"
-            style={{ width: "100%" }}
+            style={{ width: "400px" }}
             onChange={(values) => setSelectedEmployees(values)}
             loading={employeesLoading}
           >

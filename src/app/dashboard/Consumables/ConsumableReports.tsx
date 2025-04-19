@@ -76,69 +76,206 @@ const ConsumableReports = ({ isOpen, onClose }: ConsumableReportsProps) => {
     const consumable = consumables.find(
       (c: any) => c.id === selectedConsumable
     );
-    const printWindow = window.open("", "_blank");
+    const printWindow = window.open("", "_blank", "width=900,height=600");
     if (!printWindow) return;
 
     const htmlContent = `
       <!DOCTYPE html>
-      <html lang="ar">
+      <html lang="ar" dir="rtl">
       <head>
         <meta charset="UTF-8">
         <title>تقرير استهلاك ${consumable?.name}</title>
         <style>
-          body { font-family: Arial, sans-serif; direction: rtl; padding: 20px; }
-          .header { text-align: center; margin-bottom: 20px; }
-          .header img { width: 100px; }
-          .title { font-size: 24px; font-weight: bold; }
-          .subtitle { font-size: 18px; color: #555; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
-          th { background-color: #f2f2f2; font-weight: bold; }
-          .footer { margin-top: 20px; text-align: center; color: #777; }
+          @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+          body {
+            font-family: 'Cairo', sans-serif;
+            margin: 10px;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #2c3e50;
+          }
+          .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 0px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid #3498db;
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            background: #ecf0f1;
+            color: #2c3e50;
+            border-radius: 10px 10px 0 0;
+            padding: 15px;
+          }
+          .header .logo img {
+            max-width: 130px;
+            height: auto;
+          }
+          .header .company-info {
+            text-align: center;
+            flex: 1;
+          }
+          .header .company-info h1 {
+            font-size: 28px;
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+          }
+          .header .company-info p {
+            font-size: 16px;
+            margin: 5px 0 0;
+            opacity: 0.9;
+          }
+          h2 {
+            text-align: center;
+            font-size: 24px;
+            color: #2c3e50;
+            margin: 25px 0;
+            font-weight: 700;
+            position: relative;
+          }
+          h2::after {
+            content: '';
+            width: 60px;
+            height: 3px;
+            background: #3498db;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+          }
+          .date-range {
+            text-align: center;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin: 15px 0;
+            font-style: italic;
+          }
+          table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            font-size: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          }
+          th, td {
+            border: 1px solid #bdc3c7;
+            padding: 12px;
+            text-align: center;
+          }
+          th {
+            background: #3498db;
+            color: #fff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          td {
+            background: #fff;
+          }
+          tr:nth-child(even) td {
+            background: #ecf0f1;
+          }
+          tr:hover td {
+            background: #d5e8f7;
+            transition: background 0.3s ease;
+          }
+          .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px dashed #3498db;
+            font-size: 13px;
+            color: #7f8c8d;
+          }
+          .footer strong {
+            color: #3498db;
+            font-weight: 700;
+          }
+          @media print {
+            body {
+              padding: 0;
+              background: #fff;
+            }
+            .container {
+              box-shadow: none;
+              border: none;
+            }
+            .header {
+              background: #ecf0f1;
+              -webkit-print-color-adjust: exact;
+            }
+            table th, table td {
+              font-size: 12px;
+              padding: 8px;
+            }
+            .footer {
+              font-size: 11px;
+            }
+          }
         </style>
       </head>
       <body>
-        <div class="header">
-          <img src="/logo.webp" alt="Logo" />
-          <div class="title">عسكر للمقاولات العمومية</div>
-          <div class="subtitle">تقرير استهلاك: ${consumable?.name} (${
-      consumable?.unit
-    })</div>
-          ${
-            dateRange
-              ? `<div class="subtitle">من: ${moment(dateRange[0]).format(
-                  "YYYY-MM-DD"
-                )} إلى: ${moment(dateRange[1]).format("YYYY-MM-DD")}</div>`
-              : ""
-          }
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>المشروع</th>
-              <th>الكمية المستخدمة</th>
-              <th>التاريخ</th>
-              <th>ملاحظات</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${usageData
-              .map(
-                (usage) => `
+        <div class="container">
+          <div class="header">
+            <div class="company-info">
+              <h1>عسكر للمقاولات العمومية</h1>
+              <p>Askar Group for General Contracting</p>
+            </div>
+            <div class="logo">
+              <img src="/logo.webp" alt="شعار عسكر للمقاولات العمومية" />
+            </div>
+          </div>
+  
+          <h2>تقرير استهلاك: ${consumable?.name} (${consumable?.unit})</h2>
+          ${dateRange
+        ? `<div class="date-range">
+                  الفترة من: ${moment(dateRange[0]).format("YYYY-MM-DD")} إلى: ${moment(dateRange[1]).format("YYYY-MM-DD")}
+                </div>`
+        : ""
+      }
+  
+          <table>
+            <thead>
               <tr>
-                <td>${usage.project?.name || "غير محدد"}</td>
-                <td>${usage.quantityUsed} ${consumable?.unit}</td>
-                <td>${moment(usage.usedAt).format("YYYY-MM-DD")}</td>
-                <td>${usage.notes || "-"}</td>
+                <th>المشروع</th>
+                <th>الكمية المستخدمة</th>
+                <th>التاريخ</th>
+                <th>ملاحظات</th>
               </tr>
-            `
-              )
-              .join("")}
-          </tbody>
-        </table>
-        <div class="footer">
-          تم إنشاء هذا التقرير بواسطة نظام إدارة عسكر للمقاولات
+            </thead>
+            <tbody>
+              ${usageData.map((usage) => `
+                <tr>
+                  <td>${usage.project?.name || "غير محدد"}</td>
+                  <td>${Number(usage.quantityUsed).toLocaleString()} ${consumable?.unit}</td>
+                  <td>${moment(usage.usedAt).format("YYYY-MM-DD")}</td>
+                  <td>${usage.notes || "-"}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+  
+          <div class="footer">
+            <p>تم تطويره بواسطة <strong>Hamedenho</strong> لصالح <strong>عسكر للمقاولات العمومية</strong></p>
+            <p>تم إنشاء التقرير في: ${new Date().toLocaleString("ar-EG")}</p>
+          </div>
         </div>
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(() => { window.close(); }, 10000);
+          }
+        </script>
       </body>
       </html>
     `;
@@ -146,7 +283,6 @@ const ConsumableReports = ({ isOpen, onClose }: ConsumableReportsProps) => {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
     printWindow.focus();
-    printWindow.print();
   };
 
   // Table columns
@@ -162,8 +298,7 @@ const ConsumableReports = ({ isOpen, onClose }: ConsumableReportsProps) => {
       dataIndex: "quantityUsed",
       key: "quantityUsed",
       render: (quantity: number) =>
-        `${quantity} ${
-          consumables.find((c: any) => c.id === selectedConsumable)?.unit || ""
+        `${quantity} ${consumables.find((c: any) => c.id === selectedConsumable)?.unit || ""
         }`,
     },
     {

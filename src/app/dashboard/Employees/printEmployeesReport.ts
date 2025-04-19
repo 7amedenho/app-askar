@@ -9,8 +9,8 @@ export const printEmployeesReport = (employees: any) => {
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
             body {
               font-family: 'Cairo', sans-serif;
-              margin: 0;
-              padding: 1px;
+              margin: 10px;
+              padding: 20px;
               background-color: #f0f4f8;
               color: #2c3e50;
             }
@@ -172,17 +172,17 @@ export const printEmployeesReport = (employees: any) => {
               </thead>
                <tbody>
             ${employees
-              .map(
-                (
-                  data: {
-                    name: any;
-                    jobTitle: any;
-                    dailySalary: any;
-                    phoneNumber: any;
-                    nationalId: any;
-                  },
-                  index: number
-                ) => `
+      .map(
+        (
+          data: {
+            name: any;
+            jobTitle: any;
+            dailySalary: any;
+            phoneNumber: any;
+            nationalId: any;
+          },
+          index: number
+        ) => `
               <tr>
                 <td>${index + 1}</td>
                 <td>${data.name}</td>
@@ -192,8 +192,8 @@ export const printEmployeesReport = (employees: any) => {
                 <td>${data.nationalId}</td>
               </tr>
             `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
             </table>
   

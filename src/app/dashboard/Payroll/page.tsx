@@ -464,7 +464,7 @@ export default function PayrollPage() {
         open={isPayrollModalOpen}
         onCancel={() => setIsPayrollModalOpen(false)}
         footer={null}
-        width={700}
+        width={1200}
       >
         <NewPayroll
           custody={selectedCustody ? { ...selectedCustody } : null}

@@ -65,104 +65,286 @@ export default function MaintenanceReportsPage() {
           <title>تقرير الصيانة</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-            body { font-family: 'Cairo', sans-serif; margin: 20px; }
-            h1, h2 { text-align: center; margin-bottom: 20px; }
-            .header { margin-bottom: 30px; text-align: center; }
-            .stats-container { display: flex; justify-content: space-between; margin-bottom: 30px; text-align: center; }
-            .stat-box { border: 1px solid #ddd; border-radius: 5px; padding: 15px; width: 18%; }
-            .stat-title { font-size: 14px; color: #555; margin-bottom: 5px; }
-            .stat-value { font-size: 20px; font-weight: bold; }
+            body {
+              font-family: 'Cairo', sans-serif;
+              margin: 10px;
+              padding: 20px;
+              background-color: #f0f4f8;
+              color: #2c3e50;
+            }
+            .container {
+              max-width: 1000px;
+              margin: 0 auto;
+              background: #fff;
+              padding: 0px;
+              border-radius: 15px;
+              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+              border: 2px solid #3498db;
+            }
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-bottom: 20px;
+              border-bottom: 3px solid #3498db;
+              background: #ecf0f1;
+              color: #2c3e50;
+              border-radius: 10px 10px 0 0;
+              padding: 15px;
+            }
+            .header .logo img {
+              max-width: 130px;
+              height: auto;
+            }
+            .header .company-info {
+              text-align: center;
+              flex: 1;
+            }
+            .header .company-info h1 {
+              font-size: 28px;
+              margin: 0;
+              font-weight: 700;
+              text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            }
+            .header .company-info p {
+              font-size: 16px;
+              margin: 5px 0 0;
+              opacity: 0.9;
+            }
+            h2 {
+              text-align: center;
+              font-size: 24px;
+              color: #2c3e50;
+              margin: 25px 0;
+              font-weight: 700;
+              position: relative;
+            }
+            h2::after {
+              content: '';
+              width: 60px;
+              height: 3px;
+              background: #3498db;
+              position: absolute;
+              bottom: -10px;
+              left: 50%;
+              transform: translateX(-50%);
+              border-radius: 2px;
+            }
+            .filters {
+              text-align: center;
+              font-size: 13px;
+              color: #7f8c8d;
+              margin: 15px 0;
+              font-style: italic;
+            }
+            .stats-container {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+              gap: 10px;
+              margin: 20px;
+              padding: 15px;
+              background: #ecf0f1;
+              border-radius: 10px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            .stat-box {
+              padding: 15px;
+              border-radius: 5px;
+              text-align: center;
+              background: #fff;
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            .stat-title {
+              font-size: 14px;
+              color: #555;
+              margin-bottom: 5px;
+            }
+            .stat-value {
+              font-size: 20px;
+              font-weight: bold;
+            }
             .sent { color: orange; }
             .returned { color: green; }
             .broken { color: red; }
             .fixed { color: blue; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-            th { background-color: #f2f2f2; }
+            table {
+              width: 100%;
+              border-collapse: separate;
+              border-spacing: 0;
+              margin: 20px 0;
+              font-size: 15px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            th, td {
+              border: 1px solid #bdc3c7;
+              padding: 12px;
+              text-align: center;
+            }
+            th {
+              background: #3498db;
+              color: #fff;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            td {
+              background: #fff;
+            }
+            tr:nth-child(even) td {
+              background: #ecf0f1;
+            }
+            tr:hover td {
+              background: #d5e8f7;
+              transition: background 0.3s ease;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px dashed #3498db;
+              font-size: 13px;
+              color: #7f8c8d;
+            }
+            .footer strong {
+              color: #3498db;
+              font-weight: 700;
+            }
+            @media print {
+              body {
+                padding: 0;
+                background: #fff;
+              }
+              .container {
+                box-shadow: none;
+                border: none;
+              }
+              .header {
+                background: #ecf0f1;
+                -webkit-print-color-adjust: exact;
+              }
+              table th, table td {
+                font-size: 12px;
+                padding: 8px;
+              }
+              .footer {
+                font-size: 11px;
+              }
+              .stats-container {
+                background: #ecf0f1;
+                -webkit-print-color-adjust: exact;
+              }
+              .stat-box {
+                background: #fff;
+                -webkit-print-color-adjust: exact;
+              }
+            }
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>تقرير الصيانة</h1>
-            ${selectedStatus
-          ? `<p>الحالة: ${selectedStatus === "sent" ? "تم إرسالها للصيانة" :
-            selectedStatus === "returned" ? "تم استلامها من الصيانة" :
-              selectedStatus === "fixed" ? "تم إصلاحها" : "معطلة"
-          }</p>`
-          : ''
+          <div class="container">
+            <div class="header">
+              <div class="company-info">
+                <h1>عسكر للمقاولات العمومية</h1>
+                <p>Askar Group for General Contracting</p>
+              </div>
+              <div class="logo">
+                <img src="/logo.webp" alt="شعار عسكر للمقاولات العمومية" />
+              </div>
+            </div>
+  
+            <h2>تقرير الصيانة</h2>
+            <div class="filters">
+              ${selectedStatus
+          ? `الحالة: ${selectedStatus === "sent"
+            ? "تم إرسالها للصيانة"
+            : selectedStatus === "returned"
+              ? "تم استلامها من الصيانة"
+              : selectedStatus === "fixed"
+                ? "تم إصلاحها"
+                : "معطلة"
+          }`
+          : ""
         }
-            ${selectedDateRange
-          ? `<p>الفترة: من ${selectedDateRange[0].format('YYYY-MM-DD')} إلى ${selectedDateRange[1].format('YYYY-MM-DD')}</p>`
-          : ''
+              ${selectedDateRange
+          ? `<br>الفترة: من ${selectedDateRange[0].format(
+            "YYYY-MM-DD"
+          )} إلى ${selectedDateRange[1].format("YYYY-MM-DD")}`
+          : ""
         }
-          </div>
-          
-          <div class="stats-container">
-            <div class="stat-box">
-              <div class="stat-title">إجمالي الكميات</div>
-              <div class="stat-value">${statsData.total}</div>
             </div>
-            <div class="stat-box">
-              <div class="stat-title">كميات مرسلة</div>
-              <div class="stat-value sent">${statsData.sent}</div>
+  
+            <div class="stats-container">
+              
+                <span class="stat-title">إجمالي الكميات</span>
+                <span>${statsData.total.toLocaleString()}</span>
+              
+              
+                <span class="stat-title">كميات مرسلة</span>
+                <span>${statsData.sent.toLocaleString()}</span>
+             
+              
             </div>
-            <div class="stat-box">
-              <div class="stat-title">كميات مستلمة</div>
-              <div class="stat-value returned">${statsData.returned}</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-title">كميات معطلة</div>
-              <div class="stat-value broken">${statsData.broken}</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-title">كميات مصلحة</div>
-              <div class="stat-value fixed">${statsData.fixed}</div>
-            </div>
-          </div>
-          
-          <h2>تفاصيل الصيانة</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>المعدة</th>
-                <th>الكود</th>
-                <th>تاريخ الإرسال</th>
-                <th>الحالة</th>
-                <th>الكمية الكلية</th>
-                <th>الكمية الصالحة</th>
-                <th>الكمية التالفة</th>
-                <th>ملاحظات</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filteredMaintenance.map((item: any) => `
+  
+            <h2>تفاصيل الصيانة</h2>
+            <table>
+              <thead>
                 <tr>
-                  <td>${item.equipment.name}</td>
-                  <td>${item.equipment.code}</td>
-                  <td>${new Date(item.date).toLocaleDateString('ar-EG')}</td>
-                  <td class="${item.status}">
-                    ${item.status === "sent" ? "تم الإرسال" :
-            item.status === "returned" ? "تم الاستلام" :
-              item.status === "fixed" ? "تم الإصلاح" : "تالف"}
-                  </td>
-                  <td>${item.pendingQuantity || item.equipment.quantity}</td>
-                  <td>${item.returnedQuantity || 0}</td>
-                  <td>${item.brokenQuantity || 0}</td>
-                  <td>${item.notes || '-'}</td>
+                  <th>المعدة</th>
+                  <th>الكود</th>
+                  <th>تاريخ الإرسال</th>
+                  <th>الحالة</th>
+                  <th>الكمية الكلية</th>
+                  <th>الكمية الصالحة</th>
+                  <th>الكمية التالفة</th>
+                  <th>ملاحظات</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          
-          <div style="margin-top: 40px; text-align: center; color: #777;">
-            تم إنشاء التقرير في: ${new Date().toLocaleString('ar-EG')}
+              </thead>
+              <tbody>
+                ${filteredMaintenance
+          .map(
+            (item: any) => `
+                  <tr>
+                    <td>${item.equipment?.name || "غير محدد"}</td>
+                    <td>${item.equipment?.code || "غير محدد"}</td>
+                    <td>${new Date(item.date).toLocaleDateString("ar-EG")}</td>
+                    <td class="${item.status}">
+                      ${item.status === "sent"
+                ? "تم الإرسال"
+                : item.status === "returned"
+                  ? "تم الاستلام"
+                  : item.status === "fixed"
+                    ? "تم الإصلاح"
+                    : "تالف"
+              }
+                    </td>
+                    <td>${(item.pendingQuantity || item.equipment?.quantity || 0).toLocaleString()
+              }</td>
+                    <td>${(item.returnedQuantity || 0).toLocaleString()}</td>
+                    <td>${(item.brokenQuantity || 0).toLocaleString()}</td>
+                    <td>${item.notes || "-"}</td>
+                  </tr>
+                `
+          )
+          .join("")}
+              </tbody>
+            </table>
+  
+            <div class="footer">
+              <p>تم تطويره بواسطة <strong>Hamedenho</strong> لصالح <strong>عسكر للمقاولات العمومية</strong></p>
+              <p>تم إنشاء التقرير في: ${new Date().toLocaleString("ar-EG")}</p>
+            </div>
           </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(() => { window.close(); }, 10000);
+            }
+          </script>
         </body>
         </html>
       `);
       printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
+      printWindow.focus();
       setTimeout(() => {
         setIsPrinting(false);
       }, 500);

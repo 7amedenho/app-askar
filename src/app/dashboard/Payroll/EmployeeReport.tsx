@@ -30,8 +30,8 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
         `/api/attendance?startDate=${startDate
           .startOf("day")
           .format("YYYY-MM-DD")}&endDate=${adjustedEndDate
-          .startOf("day")
-          .format("YYYY-MM-DD")}`
+            .startOf("day")
+            .format("YYYY-MM-DD")}`
       );
       return res.data.filter(
         (record: any) => record.employeeId === employee.id
@@ -48,8 +48,8 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
         `/api/deductions?startDate=${startDate
           .startOf("day")
           .format("YYYY-MM-DD")}&endDate=${adjustedEndDate
-          .startOf("day")
-          .format("YYYY-MM-DD")}`
+            .startOf("day")
+            .format("YYYY-MM-DD")}`
       );
       return res.data.filter(
         (record: any) => record.employeeId === employee.id
@@ -66,8 +66,8 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
         `/api/bonuses?startDate=${startDate
           .startOf("day")
           .format("YYYY-MM-DD")}&endDate=${adjustedEndDate
-          .startOf("day")
-          .format("YYYY-MM-DD")}`
+            .startOf("day")
+            .format("YYYY-MM-DD")}`
       );
       return res.data.filter(
         (record: any) => record.employeeId === employee.id
@@ -84,8 +84,8 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
         `/api/advances?startDate=${startDate
           .startOf("day")
           .format("YYYY-MM-DD")}&endDate=${adjustedEndDate
-          .startOf("day")
-          .format("YYYY-MM-DD")}`
+            .startOf("day")
+            .format("YYYY-MM-DD")}`
       );
       return res.data.filter(
         (record: any) => record.employeeId === employee.id
@@ -235,31 +235,64 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
             body {
               font-family: 'Cairo', sans-serif;
               margin: 0;
-              padding: 30px;
+              padding: 1px;
               background-color: #f0f4f8;
               color: #2c3e50;
             }
             .container {
-              background-color: white;
-              border-radius: 10px;
-              padding: 20px;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              max-width: 1000px;
+              margin: 0 auto;
+              background: #fff;
+              padding: 0px;
+              border-radius: 15px;
+              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+              border: 2px solid #3498db;
             }
             .header {
-              text-align: center;
-              margin-bottom: 20px;
-              padding-bottom: 10px;
-              border-bottom: 2px solid #eaeaea;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-bottom: 20px;
+              border-bottom: 3px solid #3498db;
+              background: #ecf0f1;
+              color: #2c3e50;
+              border-radius: 10px 10px 0 0;
+              padding: 15px;
             }
-            .header h1 {
-              color: #3498db;
-              margin-bottom: 5px;
+            .header .logo img {
+              max-width: 130px;
+              height: auto;
+            }
+            .header .company-info {
+              text-align: center;
+              flex: 1;
+            }
+            .header .company-info h1 {
+              font-size: 28px;
+              margin: 0;
+              font-weight: 700;
+              text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            }
+            .header .company-info p {
+              font-size: 16px;
+              margin: 5px 0 0;
+              opacity: 0.9;
+            }
+            .date-range {
+              text-align: center;
+              font-size: 13px;
+              color: #7f8c8d;
+              margin: 15px 0;
+              font-style: italic;
             }
             .employee-info {
               display: flex;
               justify-content: space-between;
-              margin-bottom: 20px;
+              margin: 20px;
               flex-wrap: wrap;
+              background: #ecf0f1;
+              padding: 15px;
+              border-radius: 10px;
             }
             .info-item {
               margin-bottom: 10px;
@@ -270,7 +303,7 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
               color: #7f8c8d;
             }
             .section {
-              margin-bottom: 20px;
+              margin: 20px;
             }
             .section-title {
               font-size: 18px;
@@ -278,29 +311,55 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
               margin-bottom: 10px;
               padding-bottom: 5px;
               border-bottom: 1px solid #eaeaea;
+              position: relative;
+            }
+            .section-title::after {
+              content: '';
+              width: 60px;
+              height: 3px;
+              background: #3498db;
+              position: absolute;
+              bottom: -10px;
+              left: 50%;
+              transform: translateX(-50%);
+              border-radius: 2px;
             }
             table {
               width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 15px;
+              border-collapse: separate;
+              border-spacing: 0;
+              margin: 20px 0;
+              font-size: 15px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
             th, td {
-              border: 1px solid #ddd;
-              padding: 8px 12px;
-              text-align: right;
+              border: 1px solid #bdc3c7;
+              padding: 12px;
+              text-align: center;
             }
             th {
-              background-color: #f2f2f2;
-              font-weight: bold;
+              background: #3498db;
+              color: #fff;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 1px;
             }
-            tr:nth-child(even) {
-              background-color: #f9f9f9;
+            td {
+              background: #fff;
+            }
+            tr:nth-child(even) td {
+              background: #ecf0f1;
+            }
+            tr:hover td {
+              background: #d5e8f7;
+              transition: background 0.3s ease;
             }
             .summary {
               background-color: #f8f9fa;
               padding: 15px;
               border-radius: 5px;
-              margin-top: 20px;
+              margin: 20px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
             .summary-item {
               display: flex;
@@ -315,32 +374,57 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
               padding-top: 8px;
               margin-top: 8px;
             }
-            .date-range {
-              text-align: center;
-              margin-bottom: 15px;
-              color: #7f8c8d;
-            }
             .footer {
               text-align: center;
-              margin-top: 30px;
-              font-size: 12px;
-              color: #95a5a6;
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px dashed #3498db;
+              font-size: 13px;
+              color: #7f8c8d;
+            }
+            .footer strong {
+              color: #3498db;
+              font-weight: 700;
+            }
+            @media print {
+              body {
+                padding: 0;
+                background: #fff;
+              }
+              .container {
+                box-shadow: none;
+                border: none;
+              }
+              .header {
+                background: #ecf0f1;
+                -webkit-print-color-adjust: exact;
+              }
+              table th, table td {
+                font-size: 12px;
+                padding: 8px;
+              }
+              .footer {
+                font-size: 11px;
+              }
             }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header">
-              <h1>كشف حساب موظف</h1>
-              <p>عسكر للمقاولات العمومية</p>
+              <div class="company-info">
+                <h1>عسكر للمقاولات العمومية</h1>
+                <p>Askar Group for General Contracting</p>
+              </div>
+              <div class="logo">
+                <img src="/logo.webp" alt="شعار عسكر للمقاولات العمومية" />
+              </div>
             </div>
-            
+  
             <div class="date-range">
-              الفترة من ${startDate.format("YYYY/MM/DD")} إلى ${endDate.format(
-        "YYYY/MM/DD"
-      )}
+              الفترة من ${startDate.format("YYYY/MM/DD")} إلى ${endDate.format("YYYY/MM/DD")}
             </div>
-            
+  
             <div class="employee-info">
               <div class="info-item">
                 <span class="info-label">اسم الموظف:</span> ${employee.name}
@@ -349,27 +433,19 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
                 <span class="info-label">الوظيفة:</span> ${employee.jobTitle}
               </div>
               <div class="info-item">
-                <span class="info-label">الرقم القومي:</span> ${
-                  employee.nationalId
-                }
+                <span class="info-label">الرقم القومي:</span> ${employee.nationalId}
               </div>
               <div class="info-item">
-                <span class="info-label">رقم الهاتف:</span> ${
-                  employee.phoneNumber
-                }
+                <span class="info-label">رقم الهاتف:</span> ${employee.phoneNumber}
               </div>
               <div class="info-item">
-                <span class="info-label">الراتب اليومي:</span> ${
-                  employee.dailySalary
-                } ج.م
+                <span class="info-label">الراتب اليومي:</span> ${employee.dailySalary} ج.م
               </div>
               <div class="info-item">
-                <span class="info-label">الرصيد الحالي:</span> ${
-                  employee.budget
-                } ج.م
+                <span class="info-label">الرصيد الحالي:</span> ${employee.budget} ج.م
               </div>
             </div>
-            
+  
             <div class="section">
               <h3 class="section-title">سجل الحضور</h3>
               <table>
@@ -382,35 +458,19 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  ${attendance
-                    .map(
-                      (record: any) => `
+                  ${attendance.map((record: any) => `
                     <tr>
-                      <td>${new Date(record.date).toLocaleDateString(
-                        "ar-EG"
-                      )}</td>
-                      <td>${new Date(record.checkIn).toLocaleTimeString(
-                        "ar-EG"
-                      )}</td>
-                      <td>${
-                        record.checkOut
-                          ? new Date(record.checkOut).toLocaleTimeString(
-                              "ar-EG"
-                            )
-                          : "-"
-                      }</td>
+                      <td>${new Date(record.date).toLocaleDateString("ar-EG")}</td>
+                      <td>${new Date(record.checkIn).toLocaleTimeString("ar-EG")}</td>
+                      <td>${record.checkOut ? new Date(record.checkOut).toLocaleTimeString("ar-EG") : "-"}</td>
                       <td>${record.notes || "-"}</td>
                     </tr>
-                  `
-                    )
-                    .join("")}
+                  `).join("")}
                 </tbody>
               </table>
             </div>
-            
-            ${
-              deductions.length > 0
-                ? `
+  
+            ${deductions.length > 0 ? `
               <div class="section">
                 <h3 class="section-title">الخصومات</h3>
                 <table>
@@ -421,28 +481,18 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    ${deductions
-                      .map(
-                        (record: any) => `
+                    ${deductions.map((record: any) => `
                       <tr>
-                        <td>${new Date(record.date).toLocaleDateString(
-                          "ar-EG"
-                        )}</td>
+                        <td>${new Date(record.date).toLocaleDateString("ar-EG")}</td>
                         <td>${Number(record.amount).toLocaleString()} ج.م</td>
                       </tr>
-                    `
-                      )
-                      .join("")}
+                    `).join("")}
                   </tbody>
                 </table>
               </div>
-            `
-                : ""
-            }
-            
-            ${
-              bonuses.length > 0
-                ? `
+            ` : ""}
+  
+            ${bonuses.length > 0 ? `
               <div class="section">
                 <h3 class="section-title">المكافآت</h3>
                 <table>
@@ -454,29 +504,19 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    ${bonuses
-                      .map(
-                        (record: any) => `
+                    ${bonuses.map((record: any) => `
                       <tr>
-                        <td>${new Date(record.date).toLocaleDateString(
-                          "ar-EG"
-                        )}</td>
+                        <td>${new Date(record.date).toLocaleDateString("ar-EG")}</td>
                         <td>${Number(record.amount).toLocaleString()} ج.م</td>
                         <td>${record.reason}</td>
                       </tr>
-                    `
-                      )
-                      .join("")}
+                    `).join("")}
                   </tbody>
                 </table>
               </div>
-            `
-                : ""
-            }
-            
-            ${
-              advances.length > 0
-                ? `
+            ` : ""}
+  
+            ${advances.length > 0 ? `
               <div class="section">
                 <h3 class="section-title">السلف</h3>
                 <table>
@@ -488,34 +528,18 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    ${advances
-                      .map(
-                        (record: any) => `
+                    ${advances.map((record: any) => `
                       <tr>
-                        <td>${new Date(record.requestDate).toLocaleDateString(
-                          "ar-EG"
-                        )}</td>
+                        <td>${new Date(record.requestDate).toLocaleDateString("ar-EG")}</td>
                         <td>${Number(record.amount).toLocaleString()} ج.م</td>
-                        <td>${
-                          record.status === "pending"
-                            ? "قيد الانتظار"
-                            : record.status === "approved"
-                            ? "تمت الموافقة"
-                            : record.status === "repaid"
-                            ? "تم السداد"
-                            : record.status
-                        }</td>
+                        <td>${record.status === "pending" ? "قيد الانتظار" : record.status === "approved" ? "تمت الموافقة" : record.status === "repaid" ? "تم السداد" : record.status}</td>
                       </tr>
-                    `
-                      )
-                      .join("")}
+                    `).join("")}
                   </tbody>
                 </table>
               </div>
-            `
-                : ""
-            }
-            
+            ` : ""}
+  
             <div class="summary">
               <div class="summary-item">
                 <span>إجمالي أيام العمل:</span>
@@ -542,15 +566,14 @@ export default function EmployeeReport({ employee }: EmployeeReportProps) {
                 <span>${netSalary.toLocaleString()} ج.م</span>
               </div>
             </div>
-            
+  
             <div class="footer">
-              <p>تم إصدار هذا التقرير بتاريخ ${new Date().toLocaleDateString(
-                "ar-EG"
-              )} الساعة ${new Date().toLocaleTimeString("ar-EG")}</p>
+              <p>تم تطويره بواسطة <strong>Hamedenho</strong> لصالح <strong>عسكر للمقاولات العمومية</strong></p>
+              <p>تم إصدار هذا التقرير بتاريخ ${new Date().toLocaleDateString("ar-EG")} الساعة ${new Date().toLocaleTimeString("ar-EG")}</p>
             </div>
           </div>
           <script>
-            window.onload = function() { window.print(); }
+            window.onload = function() { window.print(); setTimeout(() => { window.close(); }, 10000); }
           </script>
         </body>
         </html>

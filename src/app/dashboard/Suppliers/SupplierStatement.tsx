@@ -83,7 +83,6 @@ export default function SupplierStatement({
     runningBalance += item.debit - item.credit;
     item.balance = runningBalance;
   });
-
   const handlePrint = () => {
     const printWindow = window.open("", "_blank", "width=900,height=600");
     if (printWindow) {
@@ -97,52 +96,163 @@ export default function SupplierStatement({
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
             body {
               font-family: 'Cairo', sans-serif;
-              margin: 20px;
+              margin: 10px;
               padding: 20px;
-              background-color: #f4f4f4;
+              background-color: #f0f4f8;
+              color: #2c3e50;
             }
             .container {
-              max-width: 900px;
+              max-width: 1000px;
               margin: 0 auto;
               background: #fff;
-              padding: 20px;
-              border-radius: 8px;
-              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+              padding: 0px;
+              border-radius: 15px;
+              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+              border: 2px solid #3498db;
             }
-            h1 {
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-bottom: 20px;
+              border-bottom: 3px solid #3498db;
+              background: #ecf0f1;
+              color: #2c3e50;
+              border-radius: 10px 10px 0 0;
+              padding: 15px;
+            }
+            .header .logo img {
+              max-width: 130px;
+              height: auto;
+            }
+            .header .company-info {
               text-align: center;
-              color: #333;
+              flex: 1;
+            }
+            .header .company-info h1 {
+              font-size: 28px;
+              margin: 0;
+              font-weight: 700;
+              text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            }
+            .header .company-info p {
+              font-size: 16px;
+              margin: 5px 0 0;
+              opacity: 0.9;
+            }
+            h2 {
+              text-align: center;
+              font-size: 24px;
+              color: #2c3e50;
+              margin: 25px 0;
+              font-weight: 700;
+              position: relative;
+            }
+            h2::after {
+              content: '';
+              width: 60px;
+              height: 3px;
+              background: #3498db;
+              position: absolute;
+              bottom: -10px;
+              left: 50%;
+              transform: translateX(-50%);
+              border-radius: 2px;
+            }
+            .date-range {
+              text-align: center;
+              font-size: 13px;
+              color: #7f8c8d;
+              margin: 15px 0;
+              font-style: italic;
             }
             table {
               width: 100%;
-              border-collapse: collapse;
+              border-collapse: separate;
+              border-spacing: 0;
               margin: 20px 0;
+              font-size: 15px;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
             th, td {
-              border: 1px solid #ddd;
-              padding: 10px;
+              border: 1px solid #bdc3c7;
+              padding: 12px;
               text-align: center;
             }
             th {
-              background-color: #3498db;
-              color: white;
+              background: #3498db;
+              color: #fff;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 1px;
             }
-            tr:nth-child(even) {
-              background-color: #f9f9f9;
+            td {
+              background: #fff;
+            }
+            tr:nth-child(even) td {
+              background: #ecf0f1;
+            }
+            tr:hover td {
+              background: #d5e8f7;
+              transition: background 0.3s ease;
+            }
+            tfoot td {
+              font-weight: bold;
+              background: #f8f9fa;
+              color: #2980b9;
             }
             .footer {
               text-align: center;
-              margin-top: 20px;
-              color: #777;
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px dashed #3498db;
+              font-size: 13px;
+              color: #7f8c8d;
+            }
+            .footer strong {
+              color: #3498db;
+              font-weight: 700;
+            }
+            @media print {
+              body {
+                padding: 0;
+                background: #fff;
+              }
+              .container {
+                box-shadow: none;
+                border: none;
+              }
+              .header {
+                background: #ecf0f1;
+                -webkit-print-color-adjust: exact;
+              }
+              table th, table td {
+                font-size: 12px;
+                padding: 8px;
+              }
+              .footer {
+                font-size: 11px;
+              }
             }
           </style>
         </head>
         <body>
           <div class="container">
-            <h1>كشف حساب المورد: ${supplier.name}</h1>
-            <p>من: ${dateRange ? dateRange[0].format("YYYY-MM-DD") : "غير محدد"
-        } إلى: ${dateRange ? dateRange[1].format("YYYY-MM-DD") : "غير محدد"
-        }</p>
+            <div class="header">
+              <div class="company-info">
+                <h1>عسكر للمقاولات العمومية</h1>
+                <p>Askar Group for General Contracting</p>
+              </div>
+              <div class="logo">
+                <img src="/logo.webp" alt="شعار عسكر للمقاولات العمومية" />
+              </div>
+            </div>
+  
+            <h2>كشف حساب المورد: ${supplier.name}</h2>
+            <div class="date-range">
+              الفترة من: ${dateRange ? dateRange[0].format("YYYY-MM-DD") : "غير محدد"} إلى: ${dateRange ? dateRange[1].format("YYYY-MM-DD") : "غير محدد"}
+            </div>
+  
             <table>
               <thead>
                 <tr>
@@ -154,37 +264,40 @@ export default function SupplierStatement({
                 </tr>
               </thead>
               <tbody>
-                ${dataSource
-          .map(
-            (item) => `
+                ${dataSource.map((item) => `
                   <tr>
-                    <td>${item.date}</td>
+                    <td>${new Date(item.date).toLocaleDateString("ar-EG")}</td>
                     <td>${item.description}</td>
-                    <td>${item.debit}</td>
-                    <td>${item.credit}</td>
-                    <td>${item.balance}</td>
+                    <td>${Number(item.debit).toLocaleString()} ج.م</td>
+                    <td>${Number(item.credit).toLocaleString()} ج.م</td>
+                    <td>${Number(item.balance).toLocaleString()} ج.م</td>
                   </tr>
-                `
-          )
-          .join("")}
+                `).join("")}
               </tbody>
               <tfoot>
                 <tr>
                   <td colspan="4">الرصيد النهائي</td>
-                  <td>${runningBalance}</td>
+                  <td>${Number(runningBalance).toLocaleString()} ج.م</td>
                 </tr>
               </tfoot>
             </table>
+  
             <div class="footer">
-              تم إنشاء التقرير في: ${new Date().toLocaleString("ar-EG")}
+              <p>تم تطويره بواسطة <strong>Hamedenho</strong> لصالح <strong>عسكر للمقاولات العمومية</strong></p>
+              <p>تم إنشاء التقرير في: ${new Date().toLocaleString("ar-EG")}</p>
             </div>
           </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(() => { window.close(); }, 10000);
+            }
+          </script>
         </body>
         </html>
       `);
       printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
+      printWindow.focus();
     }
   };
 
@@ -194,7 +307,7 @@ export default function SupplierStatement({
         <DialogHeader>
           <DialogTitle>كشف حساب المورد: {supplier.name}</DialogTitle>
         </DialogHeader>
-        <div className="py-4 space-y-2">
+        <div className="py-4 space-y-2 flex flex-col gap-2">
           <RangePicker
             onChange={(dates) => setDateRange(dates as any)}
             format="YYYY-MM-DD"

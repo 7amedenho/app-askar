@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 import NewProject from "./NewProject";
 import EditProject from "./EditProject";
+import ProjectReport from "./ProjectReport";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,6 +85,9 @@ export default function Page() {
       toast.error("حدث خطأ في حذف المشروع");
     },
   });
+
+  const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
+  const [selectedReportProjectId, setSelectedReportProjectId] = useState<number | null>(null);
 
   const filteredAndSortedProjects = projects
     .filter((project) => {
@@ -175,10 +179,19 @@ export default function Page() {
           <PlusCircleIcon size={18} />
           <span>إنشاء مشروع</span>
         </Button>
-        {/* <Button type="text" className="flex items-center gap-2">
+        <Button
+          type="text"
+          className="flex items-center gap-2"
+          onClick={() => {
+            if (projects.length > 0) {
+              setSelectedReportProjectId(projects[0].id);
+              setIsReportOpen(true);
+            }
+          }}
+        >
           <File size={18} />
           <span>تقارير</span>
-        </Button> */}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -309,6 +322,20 @@ export default function Page() {
           onClose={() => setIsEditOpen(false)}
           projectId={selectedProject?.id?.toString() ?? null}
         />
+      )}
+      {isReportOpen && (
+        <Modal
+          title="تقرير المشروع"
+          open={isReportOpen}
+          onCancel={() => setIsReportOpen(false)}
+          width={1000}
+          footer={null}
+        >
+          <ProjectReport
+            isOpen={isReportOpen}
+            onClose={() => setIsReportOpen(false)}
+          />
+        </Modal>
       )}
     </div>
   );

@@ -62,7 +62,7 @@ export default function TaskItemDetail({ isOpen, onClose, taskItem }: TaskItemDe
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[85vw] p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
+      <DialogContent className="max-w-[100vw] p-6 rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-center">
             تفاصيل القطعة: {taskItem.name}
@@ -75,7 +75,7 @@ export default function TaskItemDetail({ isOpen, onClose, taskItem }: TaskItemDe
           </div>
         ) : itemDetails ? (
           <div className="mt-4">
-            <Row gutter={16} className="mb-6">
+            <Row gutter={24} className="mb-6">
               <Col xs={24} sm={8}>
                 <Card>
                   <Statistic

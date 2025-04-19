@@ -9,8 +9,8 @@ export const printEmployeesReport = (employees: any) => {
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
             body {
               font-family: 'Cairo', sans-serif;
-              margin: 0;
-              padding: 1px;
+              margin: 10px;
+              padding: 20px;
               background-color: #f0f4f8;
               color: #2c3e50;
             }
