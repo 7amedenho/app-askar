@@ -9,21 +9,23 @@ datasource db {
 
 /// نموذج الموظف
 model Employee {
-  id           Int            @id @default(autoincrement())
-  name         String
-  jobTitle     String
-  nationalId   String         @unique
-  phoneNumber  String         @unique
-  dailySalary  Int            @default(0) // تغيير من Int إلى Int
-  budget       Int            @default(0) // تغيير من Int إلى Int
-  attendance   Attendance[]
-  deductions   Deduction[]
-  bonuses      Bonus[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  Payroll      Payroll[]
-  Advance      Advance[]
-  TaskDelivery TaskDelivery[]
+  id               Int                     @id @default(autoincrement())
+  name             String
+  jobTitle         String
+  nationalId       String                  @unique
+  phoneNumber      String                  @unique
+  dailySalary      Int                     @default(0) // تغيير من Int إلى Int
+  budget           Int                     @default(0) // تغيير من Int إلى Int
+  attendance       Attendance[]
+  deductions       Deduction[]
+  bonuses          Bonus[]
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  Payroll          Payroll[]
+  Advance          Advance[]
+  TaskDelivery     TaskDelivery[]
+  assignments      DailyWorkerAssignment[]
+  WorkerAssignment WorkerAssignment[]
 
   @@index([name])
 }
@@ -140,16 +142,16 @@ model Expense {
 
 /// نموذج المشروع
 model Project {
-  id          Int       @id @default(autoincrement())
-  name        String
-  managerName String
-  startDate   DateTime
-  endDate     DateTime?
-  status      String    @default("active")
-  custodies   Custody[]
-  expenses    Expense[]
-  createdAt   DateTime  @default(now())
-
+  id              Int                     @id @default(autoincrement())
+  name            String
+  managerName     String
+  startDate       DateTime
+  endDate         DateTime?
+  status          String                  @default("active")
+  custodies       Custody[]
+  expenses        Expense[]
+  createdAt       DateTime                @default(now())
+  assignments     DailyWorkerAssignment[]
   ConsumableUsage ConsumableUsage[]
 }
 
@@ -253,6 +255,7 @@ model ConsumableItem {
   unit         String // كيس، متر، كيلو...
   brand        String? // الماركة
   stock        Int               @default(0)
+  baseQuantity Int               @default(0) // الكمية الأساسية لحساب النسبة المئوية
   supplier     Supplier          @relation(fields: [supplierId], references: [id])
   supplierId   Int
   invoiceItems InvoiceItem[] // ربط بعناصر الفاتورة
@@ -313,4 +316,35 @@ model Permission {
   userId   Int // معرف المستخدم
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   menuItem String // العنصر الذي يملك المستخدم صلاحية عليه
+}
+
+/// نموذج تسجيل العمال اليومي للمشروع
+model DailyWorkerAssignment {
+  id        Int                @id @default(autoincrement())
+  project   Project            @relation(fields: [projectId], references: [id])
+  projectId Int
+  date      DateTime           @default(now())
+  engineer  String
+  workers   WorkerAssignment[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  Employee  Employee[]
+
+  @@index([projectId, date])
+}
+
+/// نموذج تسجيل العامل في اليوم
+model WorkerAssignment {
+  id                Int                   @id @default(autoincrement())
+  dailyAssignment   DailyWorkerAssignment @relation(fields: [dailyAssignmentId], references: [id])
+  dailyAssignmentId Int
+  employee          Employee              @relation(fields: [employeeId], references: [id])
+  employeeId        Int
+  checkIn           DateTime              @default(now())
+  checkOut          DateTime?
+  notes             String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@index([dailyAssignmentId, employeeId])
 }

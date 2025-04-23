@@ -14,6 +14,7 @@ import {
   Shirt,
   Home,
   UserCog,
+  Construction,
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -51,7 +52,8 @@ export const items: MenuGroup[] = [
   {
     title: "إدارة المشاريع",
     items: [
-      { title: "إدارة المشاريع", url: "/dashboard/Projects", icon: HardHat },
+      { title: "إدارة المشاريع", url: "/dashboard/Projects", icon: Construction },
+      { title: "إدارة طاقم المشروع", url: "/dashboard/daily-worker-assignments", icon: HardHat },
     ],
   },
   {
