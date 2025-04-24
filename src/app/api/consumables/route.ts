@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
         unit,
         brand,
         stock: Number(stock),
+        baseQuantity: Number(stock),
         supplier: { connect: { id: Number(supplierId) } },
       },
     });

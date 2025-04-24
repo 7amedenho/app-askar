@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { Form, Input, Button, Select, DatePicker, InputNumber } from "antd";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
@@ -18,7 +18,7 @@ interface DeductionProps {
 export default function NewDeduction({ custody, onSuccess }: DeductionProps) {
   const [form] = Form.useForm();
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
-
+  const queryClient = useQueryClient();
   // جلب بيانات الموظفين
   const { data: employees = [], isLoading: employeesLoading } = useQuery({
     queryKey: ["employees"],
@@ -37,6 +37,11 @@ export default function NewDeduction({ custody, onSuccess }: DeductionProps) {
       toast.success("تم إضافة الخصم بنجاح");
       form.resetFields();
       setSelectedEmployee(null);
+      queryClient.invalidateQueries({ queryKey: ["deductions"] });
+      queryClient.invalidateQueries({ queryKey: ["payrolls"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["custodies"] });
+      queryClient.invalidateQueries({ queryKey: ["payroll"] });
       onSuccess();
     },
     onError: (error: any) => {

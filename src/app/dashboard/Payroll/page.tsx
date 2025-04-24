@@ -50,12 +50,14 @@ interface Employee {
 }
 
 interface Payroll {
+  employeeId: string;
   id: string;
   netSalary: number;
   paidAmount: number;
 }
 
 interface Advance {
+  employeeId: string;
   id: string;
   amount: number;
 }
@@ -79,30 +81,18 @@ interface ChartData {
 export default function PayrollPage() {
   const [isPayrollModalOpen, setIsPayrollModalOpen] = useState<boolean>(false);
   const [isAdvanceModalOpen, setIsAdvanceModalOpen] = useState<boolean>(false);
-  const [isDeductionModalOpen, setIsDeductionModalOpen] =
-    useState<boolean>(false);
+  const [isDeductionModalOpen, setIsDeductionModalOpen] = useState<boolean>(false);
   const [isBonusModalOpen, setIsBonusModalOpen] = useState<boolean>(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
   const [selectedCustody, setSelectedCustody] = useState<Custody | null>(null);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
-  );
-  const [dateRange, setDateRange] = useState<
-    [moment.Moment | null, moment.Moment | null] | null
-  >(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [dateRange, setDateRange] = useState<[moment.Moment | null, moment.Moment | null] | null>(null);
   const [budgetIsOpen, setBudgetIsOpen] = useState<boolean>(false);
-  const [darkMode, setDarkMode] = useState<boolean>(false); // حالة الدارك مود
+  const [darkMode, setDarkMode] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
-  // التحقق من تفضيلات المستخدم للدارك مود عند التحميل
-  useEffect(() => {
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    setDarkMode(prefersDark);
-  }, []);
   const fetchData = async <T,>(endpoint: string): Promise<T[]> => {
     try {
       const res = await axios.get(`/api/${endpoint}`);
@@ -113,69 +103,56 @@ export default function PayrollPage() {
     }
   };
 
-  const { data: custodies = [], isLoading: custodiesLoading } = useQuery<
-    Custody[]
-  >({
+  const { data: custodies = [], isLoading: custodiesLoading } = useQuery<Custody[]>({
     queryKey: ["custodies"],
     queryFn: () => fetchData<Custody>("custodies"),
-    refetchOnWindowFocus: true,
-    refetchInterval: 5000, // التحديث كل 5 ثواني
+    staleTime: 0,
   });
 
-  const { data: employees = [], isLoading: employeesLoading } = useQuery<
-    Employee[]
-  >({
+  // تحديث حالة العهدة المحددة عند تغيير البيانات
+  useEffect(() => {
+    if (selectedCustody && custodies.length > 0) {
+      const updatedCustody = custodies.find(c => c.id === selectedCustody.id);
+      if (updatedCustody) {
+        setSelectedCustody(updatedCustody);
+      }
+    }
+  }, [custodies, selectedCustody]);
+
+  const { data: employees = [], isLoading: employeesLoading } = useQuery<Employee[]>({
     queryKey: ["employees"],
     queryFn: () => fetchData<Employee>("employees"),
-    refetchInterval: 5000, // التحديث كل 5 ثواني
+    staleTime: 0,
   });
 
-  const { data: payrolls = [], isLoading: payrollsLoading } = useQuery<
-    Payroll[]
-  >({
+  const { data: payrolls = [], isLoading: payrollsLoading } = useQuery<Payroll[]>({
     queryKey: ["payrolls", dateRange],
     queryFn: () => fetchData<Payroll>("payroll"),
-    refetchInterval: 5000, // التحديث كل 5 ثواني
+    staleTime: 0,
   });
 
-  const { data: advances = [], isLoading: advancesLoading } = useQuery<
-    Advance[]
-  >({
+  const { data: advances = [], isLoading: advancesLoading } = useQuery<Advance[]>({
     queryKey: ["advances", dateRange],
     queryFn: () => fetchData<Advance>("advances"),
-    refetchInterval: 5000, // التحديث كل 5 ثواني
+    staleTime: 0,
   });
 
-  const { data: deductions = [], isLoading: deductionsLoading } = useQuery<
-    Deduction[]
-  >({
+  const { data: deductions = [], isLoading: deductionsLoading } = useQuery<Deduction[]>({
     queryKey: ["deductions", dateRange],
     queryFn: () => fetchData<Deduction>("deductions"),
-    refetchInterval: 5000, // التحديث كل 5 ثواني
+    staleTime: 0,
   });
 
   const { data: bonuses = [], isLoading: bonusesLoading } = useQuery<Bonus[]>({
     queryKey: ["bonuses", dateRange],
     queryFn: () => fetchData<Bonus>("bonuses"),
-    refetchInterval: 5000, // التحديث كل 5 ثواني
+    staleTime: 0,
   });
 
-  const totalPayroll = payrolls.reduce(
-    (sum, payroll) => sum + Number(payroll.paidAmount || 0),
-    0
-  );
-  const totalAdvances = advances.reduce(
-    (sum, advance) => sum + Number(advance.amount || 0),
-    0
-  );
-  const totalDeductions = deductions.reduce(
-    (sum, deduction) => sum + Number(deduction.amount || 0),
-    0
-  );
-  const totalBonuses = bonuses.reduce(
-    (sum, bonus) => sum + Number(bonus.amount || 0),
-    0
-  );
+  const totalPayroll = payrolls.reduce((sum: number, payroll: Payroll) => sum + Number(payroll.paidAmount || 0), 0);
+  const totalAdvances = advances.reduce((sum: number, advance: Advance) => sum + Number(advance.amount || 0), 0);
+  const totalDeductions = deductions.reduce((sum: number, deduction: Deduction) => sum + Number(deduction.amount || 0), 0);
+  const totalBonuses = bonuses.reduce((sum: number, bonus: Bonus) => sum + Number(bonus.amount || 0), 0);
 
   const chartData: ChartData[] = [
     { name: "المرتبات", value: totalPayroll, color: "#0088FE" },
@@ -223,9 +200,11 @@ export default function PayrollPage() {
     { name: "القيمة", data: chartData.map((item) => item.value) },
   ];
 
-  const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredEmployees = employees.filter((employee: Employee) => {
+    const hasPayroll = payrolls.some(p => p.employeeId === employee.id);
+    const hasAdvance = advances.some(a => a.employeeId === employee.id);
+    return hasPayroll || hasAdvance;
+  });
 
   const columns = [
     { title: "الاسم", dataIndex: "name", key: "name" },
@@ -389,7 +368,7 @@ export default function PayrollPage() {
             )}
             {selectedCustody && (
               <div>
-                <div className="mt-4 p-4 rounded-lg grid grid-cols-2 gap-4">
+                <div className="mt-4 p-4 rounded-lg text-nowrap overflow-hidden grid grid-cols-2 gap-4">
                   <p className="text-sm">الرمز: {selectedCustody.code}</p>
                   <p className="text-sm">الشركة: {selectedCustody.company}</p>
                 </div>
@@ -489,9 +468,12 @@ export default function PayrollPage() {
           custody={selectedCustody ? { ...selectedCustody } : null}
           onSuccess={() => {
             setIsAdvanceModalOpen(false);
-            queryClient.invalidateQueries({
-              queryKey: ["advances", "employees", "custodies"],
-            });
+            // تحديث بيانات العهدة فوراً
+            queryClient.invalidateQueries({ queryKey: ["custodies"] });
+            // تحديث بيانات الموظفين
+            queryClient.invalidateQueries({ queryKey: ["employees"] });
+            // تحديث بيانات السلف
+            queryClient.invalidateQueries({ queryKey: ["advances"] });
           }}
         />
       </Modal>
@@ -546,7 +528,7 @@ export default function PayrollPage() {
         open={budgetIsOpen}
         onCancel={() => setBudgetIsOpen(false)}
         footer={null}
-        width={800}
+        width={1200}
       >
         <BudgetReport />
       </Modal>

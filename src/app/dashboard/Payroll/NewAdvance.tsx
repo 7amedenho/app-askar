@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { Form, Input, Button, Select, DatePicker, InputNumber } from "antd";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
@@ -18,6 +18,7 @@ interface AdvanceProps {
 export default function NewAdvance({ custody, onSuccess }: AdvanceProps) {
   const [form] = Form.useForm();
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   // جلب بيانات الموظفين
   const { data: employees = [], isLoading: employeesLoading } = useQuery({
@@ -38,6 +39,11 @@ export default function NewAdvance({ custody, onSuccess }: AdvanceProps) {
       form.resetFields();
       setSelectedEmployee(null);
       onSuccess();
+      // تحديث جميع البيانات المرتبطة
+      queryClient.invalidateQueries({ queryKey: ["advances"] });
+      queryClient.invalidateQueries({ queryKey: ["payrolls"] });
+      queryClient.invalidateQueries({ queryKey: ["custodies"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || "حدث خطأ أثناء صرف السلفة");
@@ -66,7 +72,7 @@ export default function NewAdvance({ custody, onSuccess }: AdvanceProps) {
 
       createAdvanceMutation.mutate({
         employeeId: values.employeeId,
-        amount: values.amount,
+        amount: Number(values.amount), // تحويل القيمة إلى رقم
         requestDate: values.requestDate.toISOString(),
         status: values.status,
         custodyId: custody.id,

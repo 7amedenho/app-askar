@@ -136,7 +136,7 @@ export const printEmployeesReport = (employees: any) => {
               }
               table th, table td {
                 font-size: 12px;
-                padding: 8px;
+                padding: 2px;
               }
               .footer {
                 font-size: 11px;

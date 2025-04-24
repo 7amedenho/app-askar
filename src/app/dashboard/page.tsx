@@ -73,6 +73,8 @@ export default function Dashboard() {
       const response = await axios.get("/api/consumables");
       return response.data;
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Fetch equipment data
@@ -88,9 +90,11 @@ export default function Dashboard() {
   const { data: custodies = [], isLoading: isCustodiesLoading } = useQuery({
     queryKey: ["custodies"],
     queryFn: async () => {
-      const response = await axios.get("/api/custody");
+      const response = await axios.get("/api/custodies");
       return response.data;
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Fetch projects data
@@ -122,14 +126,17 @@ export default function Dashboard() {
 
   // Calculate data when available (otherwise empty arrays for safety)
   const lowStockConsumables = !isConsumablesLoading
-    ? consumables.filter((item: any) => item.stock < 10)
+    ? (consumables as any[]).filter((item) => {
+      const percentRemaining = (item.stock / item.baseQuantity) * 100;
+      return percentRemaining <= 20;
+    })
     : [];
 
   const lowBudgetCustodies = !isCustodiesLoading
     ? custodies.filter((custody: any) => {
-        const percentRemaining = (custody.remaining / custody.budget) * 100;
-        return percentRemaining < 20;
-      })
+      const percentRemaining = (custody.remaining / custody.budget) * 100;
+      return percentRemaining < 20;
+    })
     : [];
 
   const maintenanceEquipment = !isEquipmentLoading
@@ -142,20 +149,20 @@ export default function Dashboard() {
 
   const nearDeadlineProjects = !isProjectsLoading
     ? activeProjects.filter((project: any) => {
-        if (!project.endDate) return false;
-        const endDate = new Date(project.endDate);
-        const daysRemaining = Math.ceil(
-          (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
-        );
-        return daysRemaining > 0 && daysRemaining <= 14;
-      })
+      if (!project.endDate) return false;
+      const endDate = new Date(project.endDate);
+      const daysRemaining = Math.ceil(
+        (endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      return daysRemaining > 0 && daysRemaining <= 14;
+    })
     : [];
 
   const unpaidInvoices = !isInvoicesLoading
     ? invoices.filter(
-        (invoice: any) =>
-          invoice.status === "pending" || invoice.status === "partially_paid"
-      )
+      (invoice: any) =>
+        invoice.status === "pending" || invoice.status === "partially_paid"
+    )
     : [];
 
   // Calculate expense charts data only when expenses are loaded
@@ -384,45 +391,51 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <Title level={3} className="mb-0">
           لوحة التحكم
         </Title>
-        {/* <Button type="primary" href="/dashboard" icon={<Bell />}>
-          مركز الإشعارات
-        </Button> */}
       </div>
 
-      {/* Critical Alerts Section - Only show when data is loaded */}
       <div className="mb-6 space-y-3">
         {isConsumablesLoading ? (
-          <div></div>
+          <div className="flex items-center justify-center h-32">
+          </div>
+        ) : lowStockConsumables.length > 0 ? (
+          <Alert
+            message={
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                <span className="font-bold">تنبيه: مستهلكات منخفضة المخزون</span>
+              </div>
+            }
+            description={
+              <div className="space-y-2 mt-4">
+                {lowStockConsumables.map((item: any) => {
+                  const percentRemaining = (item.stock / item.baseQuantity) * 100;
+                  return (
+                    <p key={item.id} className={`text-sm ${percentRemaining < 10 ? 'text-red-600' : 'text-yellow-600'
+                      }`}>
+                      {item.name} سوف يتم نفاذه قريباً، المتبقي منه {item.stock} {item.unit} ({percentRemaining.toFixed(1)}%)
+                    </p>
+                  );
+                })}
+              </div>
+            }
+            type="warning"
+            showIcon={false}
+            action={
+              <Button type="link" href="/dashboard/Consumables">
+                فحص المستهلكات
+              </Button>
+            }
+          />
         ) : (
-          lowStockConsumables.length > 0 && (
-            <Alert
-              message={
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span className="font-bold">
-                    تنبيه: مستهلكات منخفضة المخزون
-                  </span>
-                </div>
-              }
-              description={`يوجد ${lowStockConsumables.length} من المستهلكات على وشك النفاذ وتحتاج إلى إعادة الطلب.`}
-              type="warning"
-              showIcon={false}
-              action={
-                <Button type="link" href="/dashboard/Consumables">
-                  فحص المستهلكات
-                </Button>
-              }
-            />
-          )
+          <p className="text-center text-gray-500">لا توجد مستهلكات منخفضة المخزون</p>
         )}
 
         {isCustodiesLoading ? (
-          // <Skeleton active paragraph={{ rows: 1 }} />
           <div></div>
         ) : (
           lowBudgetCustodies.length > 0 && (
@@ -446,7 +459,6 @@ export default function Dashboard() {
         )}
 
         {isProjectsLoading ? (
-          // <Skeleton active paragraph={{ rows: 1 }} />
           <div></div>
         ) : (
           nearDeadlineProjects.length > 0 && (
@@ -471,29 +483,7 @@ export default function Dashboard() {
           )
         )}
 
-        {/* {isInvoicesLoading ? (
-          <Skeleton active paragraph={{ rows: 1 }} />
-        ) : unpaidInvoices.length > 0 && (
-          <Alert
-            message={
-              <div className="flex items-center gap-2">
-                <Wallet className="h-5 w-5" />
-                <span className="font-bold">تنبيه: فواتير غير مدفوعة</span>
-              </div>
-            }
-            description={`يوجد ${unpaidInvoices.length} من الفواتير غير مدفوعة أو مدفوعة جزئياً.`}
-            type="info"
-            showIcon={false}
-            action={
-              <Button type="link" href="/dashboard/Suppliers">
-                فحص الفواتير
-              </Button>
-            }
-          />
-        )} */}
-
         {isEquipmentLoading ? (
-          // <Skeleton active paragraph={{ rows: 1 }} />
           <div></div>
         ) : (
           maintenanceEquipment.length > 0 && (
@@ -517,11 +507,10 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-between gap-6 mb-8">
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Users className="h-5 w-5 text-blue-500" />
               <span>الموظفين</span>
             </CardTitle>
@@ -530,26 +519,24 @@ export default function Dashboard() {
             {isEmployeesLoading ? (
               <Skeleton active paragraph={{ rows: 1 }} />
             ) : (
-              <>
+              <div className="flex flex-col">
                 <Statistic
                   value={employees.length}
                   suffix="موظف"
-                  valueStyle={{ color: "#1890ff", fontSize: "1.5rem" }}
+                  valueStyle={{ color: "#1890ff", fontSize: "1.75rem" }}
                 />
-                <div className="mt-2">
-                  <Link
-                    href="/dashboard/Employees"
-                    className="text-sm text-blue-500 hover:underline"
-                  >
-                    عرض الكل
-                  </Link>
-                </div>
-              </>
+                <Link
+                  href="/dashboard/Employees"
+                  className="text-sm text-blue-500 hover:underline mt-2"
+                >
+                  عرض الكل
+                </Link>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5 text-green-500" />
@@ -586,7 +573,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Wrench className="h-5 w-5 text-amber-500" />
@@ -623,7 +610,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-5 w-5 text-purple-500" />
@@ -661,7 +648,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card className="shadow-md">
           <CardHeader>
@@ -712,9 +698,8 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Data Tables Section */}
       <div className="mb-8">
-        <Card className="shadow-md">
+        <Card className="shadow-sm">
           <Tabs defaultActiveKey="1" size="large" className="p-4">
             <TabPane
               tab={
@@ -731,58 +716,60 @@ export default function Dashboard() {
               <div className="p-2">
                 {isConsumablesLoading ? (
                   <Skeleton active paragraph={{ rows: 6 }} />
+                ) : lowStockConsumables.length === 0 ? (
+                  <div className="text-center p-8">
+                    <Empty description="لا توجد مستهلكات منخفضة المخزون" />
+                  </div>
                 ) : (
                   <Table
                     dataSource={lowStockConsumables}
-                    columns={consumablesColumns}
+                    columns={[
+                      {
+                        title: "اسم الصنف",
+                        dataIndex: "name",
+                        key: "name",
+                        render: (text, record: any) => (
+                          <div>
+                            <div className="font-medium">{text}</div>
+                            <div className="text-sm text-gray-500">
+                              {record.brand || "بدون ماركة"}
+                            </div>
+                          </div>
+                        ),
+                      },
+                      {
+                        title: "الوحدة",
+                        dataIndex: "unit",
+                        key: "unit",
+                      },
+                      {
+                        title: "المخزون",
+                        dataIndex: "stock",
+                        key: "stock",
+                        render: (_, record: any) => {
+                          const percent = (record.stock / record.baseQuantity) * 100;
+                          return (
+                            <div className="flex items-center gap-2">
+                              <span>{record.stock}</span>
+                              <Progress
+                                percent={percent}
+                                size="small"
+                                status={percent <= 10 ? "exception" : "normal"}
+                                className="w-24"
+                              />
+                            </div>
+                          );
+                        },
+                      },
+                    ]}
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
                     size="middle"
                     locale={{ emptyText: "لا توجد مستهلكات منخفضة" }}
                   />
                 )}
-
-                <div className="mt-4 text-left">
-                  <Button type="primary" href="/dashboard/Consumables">
-                    إدارة المستهلكات
-                  </Button>
-                </div>
               </div>
             </TabPane>
-            {/* 
-            <TabPane
-              tab={
-                <span className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  مشاريع قرب الموعد النهائي
-                  {!isProjectsLoading && nearDeadlineProjects.length > 0 && (
-                    <Badge count={nearDeadlineProjects.length} color="error" />
-                  )}
-                </span>
-              }
-              key="2"
-            >
-              <div className="p-2">
-                {isProjectsLoading ? (
-                  <Skeleton active paragraph={{ rows: 6 }} />
-                ) : (
-                  <Table
-                    dataSource={nearDeadlineProjects}
-                    columns={projectsColumns}
-                    rowKey="id"
-                    pagination={{ pageSize: 5 }}
-                    size="middle"
-                    locale={{ emptyText: "لا توجد مشاريع قرب الموعد النهائي" }}
-                  />
-                )}
-
-                <div className="mt-4 text-left">
-                  <Button type="primary" href="/dashboard/Projects">
-                    إدارة المشاريع
-                  </Button>
-                </div>
-              </div>
-            </TabPane> */}
 
             <TabPane
               tab={
@@ -849,7 +836,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Budget & Custody Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card className="shadow-md">
           <CardHeader>
@@ -889,8 +875,8 @@ export default function Dashboard() {
                             percentRemaining < 20
                               ? "red"
                               : percentRemaining < 50
-                              ? "orange"
-                              : "green"
+                                ? "orange"
+                                : "green"
                           }
                         >
                           {percentRemaining}%
@@ -911,8 +897,8 @@ export default function Dashboard() {
                           percentRemaining < 20
                             ? "#f5222d"
                             : percentRemaining < 50
-                            ? "#faad14"
-                            : "#52c41a"
+                              ? "#faad14"
+                              : "#52c41a"
                         }
                       />
                     </div>

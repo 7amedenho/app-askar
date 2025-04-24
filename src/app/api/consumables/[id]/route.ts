@@ -58,7 +58,7 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     const body = await req.json();
-    const { name, unit, stock, supplierId } = body;
+    const { name, unit, stock, supplierId, baseQuantity } = body;
 
     // التحقق من صحة المعرف
     if (isNaN(id)) {
@@ -101,6 +101,7 @@ export async function PUT(
         name,
         unit,
         stock,
+        baseQuantity: baseQuantity !== undefined ? baseQuantity : existingConsumable.baseQuantity,
         supplierId,
       },
       include: {

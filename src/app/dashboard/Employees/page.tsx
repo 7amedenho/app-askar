@@ -52,33 +52,39 @@ export default function EmployeesPage() {
 
   // دالة الحذف باستخدام useMutation
   const deleteEmployee = async (id: number) => {
-    const response = await axios.delete(`/api/employees/${id}`);
-    return response.data;
+    try {
+      const response = await axios.delete(`/api/employees/${id}`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.error || "حدث خطأ أثناء حذف الموظف");
+    }
   };
 
   const deleteMutation = useMutation({
     mutationFn: deleteEmployee,
     onSuccess: () => {
       toast.success("تم حذف الموظف بنجاح!");
-      queryClient.invalidateQueries({ queryKey: ["employees"] }); // تحديث البيانات تلقائيًا
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
     },
     onError: (error: any) => {
-      toast.error(`فشل في حذف الموظف: ${error.response?.data?.error}`);
+      toast.error(error.message || "حدث خطأ أثناء حذف الموظف");
     },
   });
+
   const showDeleteConfirm = (employee: any) => {
     setSelectedEmployee(employee);
-    setIsModalVisible(true); // فتح المودال
+    setIsModalVisible(true);
   };
-  // دالة تنفيذ الحذف
+
   const handleDelete = (id: number) => {
     if (id) {
       deleteMutation.mutate(id);
       setIsModalVisible(false);
     } else {
-      console.error("لم يتم العثور على id الموظف.");
+      toast.error("لم يتم العثور على معرف الموظف");
     }
   };
+
   const handlePrint = () => {
     printEmployeesReport(filteredEmployees);
   };

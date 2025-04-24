@@ -122,29 +122,29 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // تحديث رصيد العهدة إذا تم تحديدها
-      // if (custodyId) {
-      //   await prismaClient.custody.update({
-      //     where: { id: custodyId },
-      //     data: {
-      //       remaining: {
-      //         decrement: Number(amount),
-      //       },
-      //     },
-      //   });
+     // تحديث رصيد العهدة إذا تم تحديدها
+      if (custodyId) {
+        await prismaClient.custody.update({
+          where: { id: custodyId },
+          data: {
+            remaining: {
+              decrement: Number(amount),
+            },
+          },
+        });
 
-      //   // إنشاء مصروف للعهدة
-      //   await prismaClient.expense.create({
-      //     data: {
-      //       description: `مكافأة للموظف: ${employee.name} - ${reason}`,
-      //       amount,
-      //       expenseType: "مكافأة",
-      //       responsiblePerson: employee.name,
-      //       custodyId,
-      //       date: new Date(),
-      //     },
-      //   });
-      // }
+        // إنشاء مصروف للعهدة
+        await prismaClient.expense.create({
+          data: {
+            description: `مكافأة للموظف: ${employee.name} - ${reason}`,
+            amount,
+            expenseType: "مكافأة",
+            responsiblePerson: employee.name,
+            custodyId,
+            date: new Date(),
+          },
+        });
+      }
 
       return bonus;
     });

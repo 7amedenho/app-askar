@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import { Form, Input, Button, Select, DatePicker, InputNumber } from "antd";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
@@ -16,6 +16,7 @@ interface BonusProps {
 }
 
 export default function NewBonus({ custody, onSuccess }: BonusProps) {
+  const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
@@ -37,6 +38,11 @@ export default function NewBonus({ custody, onSuccess }: BonusProps) {
       toast.success("تم إضافة المكافأة بنجاح");
       form.resetFields();
       setSelectedEmployee(null);
+      queryClient.invalidateQueries({ queryKey: ["bonuses"] });
+      queryClient.invalidateQueries({ queryKey: ["payrolls"] });
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["custodies"] });
+      queryClient.invalidateQueries({ queryKey: ["payroll"] });
       onSuccess();
     },
     onError: (error: any) => {

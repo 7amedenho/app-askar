@@ -14,18 +14,18 @@ model Employee {
   jobTitle         String
   nationalId       String                  @unique
   phoneNumber      String                  @unique
-  dailySalary      Int                     @default(0) // تغيير من Int إلى Int
-  budget           Int                     @default(0) // تغيير من Int إلى Int
-  attendance       Attendance[]
-  deductions       Deduction[]
-  bonuses          Bonus[]
+  dailySalary      Int                     @default(0)
+  budget           Int                     @default(0)
+  attendance       Attendance[]            @relation("EmployeeAttendance")
+  deductions       Deduction[]             @relation("EmployeeDeduction")
+  bonuses          Bonus[]                 @relation("EmployeeBonus")
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
-  Payroll          Payroll[]
-  Advance          Advance[]
-  TaskDelivery     TaskDelivery[]
-  assignments      DailyWorkerAssignment[]
-  WorkerAssignment WorkerAssignment[]
+  Payroll          Payroll[]               @relation("EmployeePayroll")
+  Advance          Advance[]               @relation("EmployeeAdvance")
+  TaskDelivery     TaskDelivery[]          @relation("EmployeeTaskDelivery")
+  assignments      DailyWorkerAssignment[] @relation("EmployeeAssignment")
+  WorkerAssignment WorkerAssignment[]      @relation("EmployeeWorkerAssignment")
 
   @@index([name])
 }
@@ -33,15 +33,15 @@ model Employee {
 /// نموذج الحضور
 model Attendance {
   id            Int       @id @default(autoincrement())
-  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee      Employee  @relation("EmployeeAttendance", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId    Int
-  date          DateTime // تاريخ اليوم
-  checkIn       DateTime // وقت الحضور
-  checkOut      DateTime? // وقت الانصراف (اختياري)
-  notes         String? // ملاحظات إضافية
+  date          DateTime
+  checkIn       DateTime
+  checkOut      DateTime?
+  notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  overtimeHours Int? // عدد الساعات الإضافية
+  overtimeHours Int?
 
   @@index([employeeId, date])
 }
@@ -49,7 +49,7 @@ model Attendance {
 /// نموذج الخصومات
 model Deduction {
   id         Int      @id @default(autoincrement())
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation("EmployeeDeduction", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   amount     Decimal
   date       DateTime @default(now())
@@ -59,7 +59,7 @@ model Deduction {
 /// نموذج المكافآت
 model Bonus {
   id         Int      @id @default(autoincrement())
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation("EmployeeBonus", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   amount     Decimal
   reason     String
@@ -70,13 +70,13 @@ model Bonus {
 /// نموذج السلف
 model Advance {
   id              Int       @id @default(autoincrement())
-  employee        Employee  @relation(fields: [employeeId], references: [id])
+  employee        Employee  @relation("EmployeeAdvance", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId      Int
-  amount          Decimal // مبلغ السلفة
-  requestDate     DateTime  @default(now()) // تاريخ طلب السلفة
-  status          String    @default("pending") // الحالة: pending, approved, repaid
-  repaymentAmount Decimal? // المبلغ المسدد (اختياري)
-  repaymentDate   DateTime? // تاريخ السداد (اختياري)
+  amount          Decimal
+  requestDate     DateTime  @default(now())
+  status          String    @default("pending")
+  repaymentAmount Decimal?
+  repaymentDate   DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -84,10 +84,10 @@ model Advance {
 /// نموذج كشف الرواتب
 model Payroll {
   id          Int      @id @default(autoincrement())
-  employee    Employee @relation(fields: [employeeId], references: [id])
+  employee    Employee @relation("EmployeePayroll", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId  Int
-  startDate   DateTime // بداية الفترة
-  endDate     DateTime // نهاية الفترة
+  startDate   DateTime
+  endDate     DateTime
   dailySalary Decimal
   daysWorked  Int
   totalSalary Decimal
@@ -95,7 +95,7 @@ model Payroll {
   deductions  Decimal  @default(0)
   advances    Decimal  @default(0)
   netSalary   Decimal
-  paidAmount  Decimal  @default(0) // المبلغ اللي تم صرفه فعليًا
+  paidAmount  Decimal  @default(0)
   createdAt   DateTime @default(now())
 }
 
@@ -175,7 +175,7 @@ model Supplier {
 /// نموذج فواتير الموردين
 model SupplierInvoice {
   id          Int           @id @default(autoincrement())
-  supplier    Supplier      @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplier    Supplier      @relation(fields: [supplierId], references: [id])
   supplierId  Int
   invoiceType String // معدات أو مستهلكات
   invoiceDate DateTime      @default(now()) // تاريخ الفاتورة
@@ -192,7 +192,7 @@ model SupplierInvoice {
 /// نموذج عناصر الفاتورة
 model InvoiceItem {
   id           Int             @id @default(autoincrement())
-  invoice      SupplierInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice      SupplierInvoice @relation(fields: [invoiceId], references: [id])
   invoiceId    Int
   itemName     String
   quantity     Int
@@ -208,7 +208,7 @@ model InvoiceItem {
 /// نموذج مدفوعات المورد
 model SupplierPayment {
   id          Int      @id @default(autoincrement())
-  supplier    Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
   supplierId  Int
   amount      Decimal
   paymentDate DateTime @default(now())
@@ -290,7 +290,7 @@ model TaskDelivery {
   id         Int      @id @default(autoincrement())
   taskItem   TaskItem @relation(fields: [taskItemId], references: [id])
   taskItemId Int
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation("EmployeeTaskDelivery", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   quantity   Int
   date       DateTime @default(now())
@@ -314,7 +314,7 @@ model User {
 model Permission {
   id       Int    @id @default(autoincrement())
   userId   Int // معرف المستخدم
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id])
   menuItem String // العنصر الذي يملك المستخدم صلاحية عليه
 }
 
@@ -328,7 +328,7 @@ model DailyWorkerAssignment {
   workers   WorkerAssignment[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
-  Employee  Employee[]
+  Employee  Employee[]         @relation("EmployeeAssignment")
 
   @@index([projectId, date])
 }
@@ -338,7 +338,7 @@ model WorkerAssignment {
   id                Int                   @id @default(autoincrement())
   dailyAssignment   DailyWorkerAssignment @relation(fields: [dailyAssignmentId], references: [id])
   dailyAssignmentId Int
-  employee          Employee              @relation(fields: [employeeId], references: [id])
+  employee          Employee              @relation("EmployeeWorkerAssignment", fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId        Int
   checkIn           DateTime              @default(now())
   checkOut          DateTime?

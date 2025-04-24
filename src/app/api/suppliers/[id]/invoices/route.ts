@@ -59,7 +59,8 @@ export async function POST(
               data: {
                 name: item.itemName,
                 unit: item.unit,
-                stock: item.quantity,
+                stock: Number(item.quantity),
+                baseQuantity: Number(item.quantity), // تعيين baseQuantity مساوياً لـ stock
                 brand: item.brand,
                 supplierId,
               },

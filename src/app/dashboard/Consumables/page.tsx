@@ -52,6 +52,7 @@ interface Consumable {
   }[];
   createdAt: string;
   updatedAt: string;
+  baseQuantity: number;
 }
 
 export default function Page() {
@@ -108,10 +109,29 @@ export default function Page() {
     });
 
   // تحديد المستهلكات التي تحتاج إلى تنبيه (المخزون أقل من 20%)
-  const getLowStockStatus = (stock: number) => {
-    if (stock <= 10) return "danger";
-    if (stock <= 30) return "warning";
+  const getLowStockStatus = (stock: number, baseQuantity: number) => {
+    const percentage = (stock / baseQuantity) * 100;
+    if (percentage <= 20) return "danger";
+    if (percentage <= 40) return "warning";
     return "normal";
+  };
+
+  const getStockPercentage = (stock: number, baseQuantity: number) => {
+    return ((stock / baseQuantity) * 100).toFixed(1);
+  };
+
+  const getStockStatusText = (stock: number, baseQuantity: number) => {
+    const percentage = (stock / baseQuantity) * 100;
+    if (percentage <= 20) return "مخزون منخفض جداً";
+    if (percentage <= 40) return "مخزون منخفض";
+    return "مخزون جيد";
+  };
+
+  const getStockStatusColor = (stock: number, baseQuantity: number) => {
+    const percentage = (stock / baseQuantity) * 100;
+    if (percentage <= 20) return "bg-red-100 text-red-800";
+    if (percentage <= 40) return "bg-yellow-100 text-yellow-800";
+    return "bg-green-100 text-green-800";
   };
 
   if (isLoading) {
@@ -197,7 +217,10 @@ export default function Page() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredConsumables.map((consumable) => {
-          const stockStatus = getLowStockStatus(consumable.stock);
+          const stockStatus = getLowStockStatus(consumable.stock, consumable.baseQuantity);
+          const stockPercentage = getStockPercentage(consumable.stock, consumable.baseQuantity);
+          const stockStatusText = getStockStatusText(consumable.stock, consumable.baseQuantity);
+          const stockStatusColor = getStockStatusColor(consumable.stock, consumable.baseQuantity);
           const totalUsed =
             consumable.usages?.reduce(
               (sum, usage) => sum + usage.quantityUsed,
@@ -209,16 +232,9 @@ export default function Page() {
               <CardHeader className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   {consumable.name}
-                  {stockStatus === "danger" && (
-                    <Tooltip title="المخزون منخفض جداً!">
-                      <Badge status="error" />
-                    </Tooltip>
-                  )}
-                  {stockStatus === "warning" && (
-                    <Tooltip title="المخزون منخفض">
-                      <Badge status="warning" />
-                    </Tooltip>
-                  )}
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${stockStatusColor}`}>
+                    {stockStatusText}
+                  </span>
                 </CardTitle>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
@@ -277,15 +293,11 @@ export default function Page() {
                     <div className="flex justify-between mb-1">
                       <p className="text-sm text-gray-500">المخزون</p>
                       <p className="text-sm">
-                        {consumable.stock} {consumable.unit}
+                        {consumable.stock} من {consumable.baseQuantity} {consumable.unit} ({stockPercentage}%)
                       </p>
                     </div>
                     <Progress
-                      percent={Math.min(
-                        100,
-                        (consumable.stock / (consumable.stock + totalUsed)) *
-                          100
-                      )}
+                      percent={Number(stockPercentage)}
                       status={
                         stockStatus === "danger"
                           ? "exception"
