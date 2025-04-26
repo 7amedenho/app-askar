@@ -348,3 +348,41 @@ model WorkerAssignment {
 
   @@index([dailyAssignmentId, employeeId])
 }
+
+/// نموذج عقود الشركات
+model CompanyContract {
+  id            Int                @id @default(autoincrement())
+  name          String
+  phoneNumber   String?
+  address       String?
+  email         String?
+  transactions  CompanyTransaction[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([name])
+}
+
+/// نموذج معاملات الشركات
+model CompanyTransaction {
+  id                Int            @id @default(autoincrement())
+  companyContract   CompanyContract @relation(fields: [companyContractId], references: [id], onDelete: Cascade)
+  companyContractId Int
+  projectName       String
+  contractNumber    String
+  contractDate      DateTime
+  fileOpenDate      DateTime
+  fileNumber        String
+  percentage        Decimal        @db.Decimal(5, 2)
+  contractValue     Decimal        @db.Decimal(10, 2)
+  invoiceNumber     String?
+  invoiceValue      Decimal?       @db.Decimal(10, 2)
+  certificateNumber String?
+  certificateDate   DateTime?
+  certificateValue  Decimal?       @db.Decimal(10, 2)
+  status            String         @default("جارٍ التنفيذ") // مكتمل، جارٍ التنفيذ، متوقف، مفقود
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([companyContractId, contractNumber])
+}

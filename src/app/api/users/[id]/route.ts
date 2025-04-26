@@ -13,9 +13,6 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        permissions: true,
-      },
       select: {
         id: true,
         name: true,
@@ -31,6 +28,7 @@ export async function GET(
         },
       },
     });
+
 
     if (!user) {
       return NextResponse.json(

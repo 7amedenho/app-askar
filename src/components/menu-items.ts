@@ -15,6 +15,7 @@ import {
   Home,
   UserCog,
   Construction,
+  Folders,
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -54,6 +55,7 @@ export const items: MenuGroup[] = [
     items: [
       { title: "إدارة المشاريع", url: "/dashboard/Projects", icon: Construction },
       { title: "إدارة طاقم المشروع", url: "/dashboard/daily-worker-assignments", icon: HardHat },
+      { title: "التعاملات الخارجية", url: "/dashboard/external-transactions", icon: Folders },
     ],
   },
   {
