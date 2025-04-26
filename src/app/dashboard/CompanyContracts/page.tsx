@@ -455,7 +455,7 @@ export default function CompanyContractsPage() {
               {selectedTransaction?.projectName}&quot;؟
             </p>
           </Modal>
-        </Drawer>
+        </Modal>
       </Card>
     </div>
   );
