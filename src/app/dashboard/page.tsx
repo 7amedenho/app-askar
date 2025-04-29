@@ -432,7 +432,7 @@ export default function Dashboard() {
             }
           />
         ) : (
-          <p className="text-center text-gray-500">لا توجد مستهلكات منخفضة المخزون</p>
+          <p className="text-center text-gray-500"></p>
         )}
 
         {isCustodiesLoading ? (

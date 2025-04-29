@@ -302,8 +302,8 @@ export default function Page() {
                         stockStatus === "danger"
                           ? "exception"
                           : stockStatus === "warning"
-                          ? "normal"
-                          : "normal"
+                            ? "normal"
+                            : "normal"
                       }
                       showInfo={false}
                     />
@@ -365,16 +365,10 @@ export default function Page() {
       </Modal>
 
       {isNewOpen && (
-        <Modal
-          title="إضافة مستهلك جديد"
+        <NewConsumable 
+          onCancel={() => setIsNewOpen(false)} 
           open={isNewOpen}
-          onCancel={() => setIsNewOpen(false)}
-          footer={null}
-          width={800}
-          className="rounded-lg"
-        >
-          <NewConsumable onCancel={() => setIsNewOpen(false)} />
-        </Modal>
+        />
       )}
 
       {isEditOpen && selectedConsumable && (

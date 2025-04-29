@@ -256,8 +256,8 @@ model ConsumableItem {
   brand        String? // الماركة
   stock        Int               @default(0)
   baseQuantity Int               @default(0) // الكمية الأساسية لحساب النسبة المئوية
-  supplier     Supplier          @relation(fields: [supplierId], references: [id])
-  supplierId   Int
+  supplier     Supplier?         @relation(fields: [supplierId], references: [id])
+  supplierId   Int?
   invoiceItems InvoiceItem[] // ربط بعناصر الفاتورة
   usages       ConsumableUsage[]
   createdAt    DateTime          @default(now())

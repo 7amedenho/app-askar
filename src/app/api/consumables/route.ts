@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const { name, unit, brand, stock, supplierId } = data;
 
     // تحقق من الحقول الأساسية
-    if (!name || !unit || !stock || !supplierId) {
+    if (!name || !unit || !stock) {
       return NextResponse.json(
         { error: "يرجى تعبئة جميع الحقول المطلوبة" },
         { status: 400 }
@@ -42,15 +42,23 @@ export async function POST(req: NextRequest) {
     }
 
     // إنشاء المستهلك
+    const createData: any = {
+      name,
+      unit,
+      brand: brand || null,
+      stock: Number(stock),
+      baseQuantity: Number(stock),
+    };
+
+    // Add supplier connection only if supplierId is provided
+    if (supplierId) {
+      createData.supplier = {
+        connect: { id: Number(supplierId) }
+      };
+    }
+
     const newConsumable = await prisma.consumableItem.create({
-      data: {
-        name,
-        unit,
-        brand,
-        stock: Number(stock),
-        baseQuantity: Number(stock),
-        supplier: { connect: { id: Number(supplierId) } },
-      },
+      data: createData,
     });
 
     return NextResponse.json(newConsumable);

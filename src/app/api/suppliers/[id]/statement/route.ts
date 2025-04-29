@@ -26,6 +26,36 @@ export async function GET(
         invoiceType: true,
         totalAmount: true,
         invoiceDate: true,
+        status: true,
+        paidAmount: true,
+        items: {
+          select: {
+            id: true,
+            itemName: true,
+            quantity: true,
+            unitPrice: true,
+            brand: true,
+            equipment: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+                brand: true,
+              },
+            },
+            consumable: {
+              select: {
+                id: true,
+                name: true,
+                unit: true,
+                brand: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        invoiceDate: 'desc',
       },
     });
 
@@ -35,6 +65,10 @@ export async function GET(
         id: true,
         amount: true,
         paymentDate: true,
+        notes: true,
+      },
+      orderBy: {
+        paymentDate: 'desc',
       },
     });
 

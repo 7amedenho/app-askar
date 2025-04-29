@@ -2,13 +2,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button, Input, Select, Modal, Spin } from "antd";
 import { toast } from "react-hot-toast";
 
@@ -249,244 +242,251 @@ export default function NewInvoice({
     setForm((prev) => {
       const newItems = [...prev.items];
       newItems[newItemModal.index] = {
+        ...newItems[newItemModal.index],
         itemName: newItemForm.name,
-        quantity: "",
-        unitPrice: "",
         brand: newItemForm.brand,
         unit: newItemForm.unit,
         isNew: true,
       };
       return { ...prev, items: newItems };
     });
-    setNewItemModal({ open: false, index: -1 });
     setNewItemForm({ name: "", unit: "", brand: "" });
+    setNewItemModal({ open: false, index: -1 });
   };
 
-  // دالة لتحديد حاوية القائمة المنسدلة
-  const getPopupContainer = (triggerNode: HTMLElement) => {
-    return triggerNode.parentElement || document.body;
-  };
-
-  // التحكم في إغلاق الـ Dialog الرئيسي
-  const handleDialogOpenChange = (open: boolean) => {
-    if (!newItemModal.open) {
+  // التحكم في إغلاق الـ Modal الرئيسي
+  const handleModalClose = () => {
+    if (form.items.some((item) => item.itemName || item.quantity || item.unitPrice || item.brand)) {
+      Modal.confirm({
+        title: "هل أنت متأكد؟",
+        content: "ستفقد جميع البيانات المدخلة إذا قمت بالإغلاق. هل تريد المتابعة؟",
+        okText: "نعم",
+        cancelText: "لا",
+        onOk: () => {
+          onClose();
+        }
+      });
+    } else {
       onClose();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-      <DialogContent className="max-w-6xl p-8">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">
-            إضافة فاتورة لـ {supplier.name}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-8">
-          {/* اختيار نوع الفاتورة */}
-          <div className="flex items-center justify-between gap-3">
-            <label className="text-lg font-medium">نوع الفاتورة</label>
-            <Select
-              value={form.invoiceType}
-              onChange={(value: "معدات" | "مستهلكات") =>
-                setForm((prev) => ({ ...prev, invoiceType: value }))
-              }
-              className="w-64"
-              getPopupContainer={getPopupContainer}
-              size="large"
-            >
-              <Option value="معدات">معدات</Option>
-              <Option value="مستهلكات">مستهلكات</Option>
-            </Select>
-            {errors.invoiceType && (
-              <span className="text-red-500 text-sm">{errors.invoiceType}</span>
-            )}
-          </div>
+    <Modal
+      open={isOpen}
+      onCancel={handleModalClose}
+      title={<div className="text-2xl font-bold text-center mb-4">إنشاء فاتورة جديدة للمورد: {supplier.name}</div>}
+      footer={[
+        <Button key="cancel" onClick={handleModalClose}>إلغاء</Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={mutation.isPending}
+          loading={mutation.isPending}
+        >
+          إنشاء الفاتورة
+        </Button>
+      ]}
+      width={1200}
+    >
+      <div className="space-y-8">
+        {/* اختيار نوع الفاتورة */}
+        <div>
+          <label className="block mb-2 font-semibold">نوع الفاتورة</label>
+          <Select
+            value={form.invoiceType}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, invoiceType: value }))
+            }
+            className="w-64"
+            size="large"
+          >
+            <Option value="معدات">معدات</Option>
+            <Option value="مستهلكات">مستهلكات</Option>
+          </Select>
+          {errors.invoiceType && (
+            <p className="text-red-500 mt-1">{errors.invoiceType}</p>
+          )}
+        </div>
 
-          {/* قائمة الأصناف */}
-          <div className="space-y-6">
-            {form.items.map((item, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center justify-end"
-              >
-                <div className="flex flex-col gap-2">
-                  {itemsLoading ? (
-                    <Spin />
-                  ) : (
+        {/* بنود الفاتورة */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">عناصر الفاتورة</h3>
+          {itemsLoading ? (
+            <div className="flex justify-center p-8">
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {form.items.map((item, index) => (
+                <div key={index} className="grid grid-cols-5 gap-4">
+                  <div className="col-span-1">
+                    <label className="block mb-2 text-sm">اسم الصنف</label>
                     <Select
-                      showSearch
-                      placeholder="اختر الصنف"
-                      className="w-full"
+                      value={item.itemId?.toString() || ""}
                       onChange={(value) => handleSelectItem(value, index)}
-                      value={
-                        item.itemId?.toString() || item.itemName || undefined
-                      }
+                      placeholder="اختر صنف"
+                      showSearch
                       filterOption={(input, option) =>
                         option?.children
                           ?.toString()
                           .toLowerCase()
                           .includes(input.toLowerCase()) ?? false
                       }
-                      getPopupContainer={getPopupContainer}
                       size="large"
                     >
-                      {itemsData.map((i) => (
-                        <Option key={i.id} value={i.id.toString()}>
-                          {i.name}
+                      {itemsData.map((item) => (
+                        <Option key={item.id} value={item.id.toString()}>
+                          {item.name}
                         </Option>
                       ))}
                       <Option value="new">إضافة صنف جديد</Option>
                     </Select>
-                  )}
-                  {errors[`itemName${index}`] && (
-                    <span className="text-red-500 text-sm">
-                      {errors[`itemName${index}`]}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Input
-                    placeholder="الكمية"
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) => handleInputChange(e, index, "quantity")}
-                    className="w-full"
-                    size="large"
-                  />
-                  {errors[`quantity${index}`] && (
-                    <span className="text-red-500 text-sm">
-                      {errors[`quantity${index}`]}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Input
-                    placeholder="سعر الوحدة"
-                    type="number"
-                    value={item.unitPrice}
-                    onChange={(e) => handleInputChange(e, index, "unitPrice")}
-                    className="w-full"
-                    size="large"
-                  />
-                  {errors[`unitPrice${index}`] && (
-                    <span className="text-red-500 text-sm">
-                      {errors[`unitPrice${index}`]}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Input
-                    placeholder="الماركة"
-                    value={item.brand}
-                    onChange={(e) => handleInputChange(e, index, "brand")}
-                    className="w-full"
-                    size="large"
-                  />
-                  {errors[`brand${index}`] && (
-                    <span className="text-red-500 text-sm">
-                      {errors[`brand${index}`]}
-                    </span>
-                  )}
-                </div>
-                {form.invoiceType === "مستهلكات" && (
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      placeholder="الوحدة"
-                      value={item.unit}
-                      disabled={!item.isNew}
-                      onChange={(e) => handleInputChange(e, index, "unit")}
-                      className="w-full"
-                      size="large"
-                    />
-                    {errors[`unit${index}`] && (
-                      <span className="text-red-500 text-sm">
-                        {errors[`unit${index}`]}
-                      </span>
+                    {errors[`itemName${index}`] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[`itemName${index}`]}
+                      </p>
                     )}
                   </div>
-                )}
-                <Button
-                  type="text"
-                  danger
-                  onClick={() => removeItem(index)}
-                  disabled={form.items.length === 1}
-                  size="large"
-                  className="h-10"
-                >
-                  حذف
-                </Button>
-              </div>
-            ))}
-            <Button
-              onClick={addItem}
-              type="dashed"
-              size="large"
-              className="w-full mt-4"
-            >
-              إضافة صنف
-            </Button>
-          </div>
+                  <div>
+                    <label className="block mb-2 text-sm">الكمية</label>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="الكمية"
+                      value={item.quantity}
+                      onChange={(e) => handleInputChange(e, index, "quantity")}
+                      size="large"
+                    />
+                    {errors[`quantity${index}`] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[`quantity${index}`]}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm">سعر الوحدة</label>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder="السعر"
+                      value={item.unitPrice}
+                      onChange={(e) => handleInputChange(e, index, "unitPrice")}
+                      size="large"
+                    />
+                    {errors[`unitPrice${index}`] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[`unitPrice${index}`]}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm">الماركة</label>
+                    <Input
+                      placeholder="الماركة"
+                      value={item.brand}
+                      onChange={(e) => handleInputChange(e, index, "brand")}
+                      size="large"
+                    />
+                    {errors[`brand${index}`] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[`brand${index}`]}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-end">
+                    {index > 0 && (
+                      <Button
+                        danger
+                        onClick={() => removeItem(index)}
+                        className="mb-0.5 ml-2"
+                      >
+                        حذف
+                      </Button>
+                    )}
+                    {index === form.items.length - 1 && (
+                      <Button
+                        onClick={addItem}
+                        type="primary"
+                        className="mb-0.5"
+                      >
+                        إضافة صنف
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <DialogFooter className="mt-8 flex justify-end gap-4">
-          <Button onClick={onClose} size="large">
-            إلغاء
-          </Button>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            disabled={mutation.isPending}
-            loading={mutation.isPending}
-            size="large"
-          >
-            إنشاء
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-
-      {/* Modal لإضافة صنف جديد */}
+      </div>
+      
+      {/* New Item Modal */}
       <Modal
-        title="إضافة صنف جديد"
         open={newItemModal.open}
-        onOk={handleNewItemSubmit}
         onCancel={() => setNewItemModal({ open: false, index: -1 })}
-        okText="إضافة"
-        cancelText="إلغاء"
-        getContainer={() =>
-          document.querySelector(".max-w-6xl") || document.body
-        }
-        width={500}
-        maskClosable={false} // منع إغلاق الـ Modal عند النقر خارجها
+        title={`إضافة ${form.invoiceType === "معدات" ? "معدات" : "مستهلكات"} جديدة`}
+        footer={[
+          <Button key="cancel" onClick={() => setNewItemModal({ open: false, index: -1 })}>
+            إلغاء
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleNewItemSubmit}
+          >
+            إضافة
+          </Button>
+        ]}
       >
         <div className="space-y-6 p-4">
-          <Input
-            placeholder="اسم الصنف"
-            value={newItemForm.name}
-            onChange={(e) =>
-              setNewItemForm((prev) => ({ ...prev, name: e.target.value }))
-            }
-            size="large"
-          />
-          <Input
-            placeholder="الماركة"
-            value={newItemForm.brand}
-            onChange={(e) =>
-              setNewItemForm((prev) => ({ ...prev, brand: e.target.value }))
-            }
-            size="large"
-          />
-          {form.invoiceType === "مستهلكات" && (
+          <div>
+            <label className="block mb-2">اسم الصنف</label>
             <Input
-              placeholder="الوحدة (طن، كيلو، ...)"
-              value={newItemForm.unit}
+              placeholder="اسم الصنف"
+              value={newItemForm.name}
               onChange={(e) =>
-                setNewItemForm((prev) => ({ ...prev, unit: e.target.value }))
+                setNewItemForm((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                }))
               }
               size="large"
             />
+          </div>
+          {form.invoiceType === "مستهلكات" && (
+            <div>
+              <label className="block mb-2">الوحدة</label>
+              <Input
+                placeholder="الوحدة (متر، كيلو، عبوة، قطعة...)"
+                value={newItemForm.unit}
+                onChange={(e) =>
+                  setNewItemForm((prev) => ({
+                    ...prev,
+                    unit: e.target.value,
+                  }))
+                }
+                size="large"
+              />
+            </div>
           )}
+          <div>
+            <label className="block mb-2">الماركة</label>
+            <Input
+              placeholder="الماركة"
+              value={newItemForm.brand}
+              onChange={(e) =>
+                setNewItemForm((prev) => ({
+                  ...prev,
+                  brand: e.target.value,
+                }))
+              }
+              size="large"
+            />
+          </div>
         </div>
       </Modal>
-    </Dialog>
+    </Modal>
   );
 }

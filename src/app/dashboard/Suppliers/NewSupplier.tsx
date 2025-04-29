@@ -2,14 +2,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button, Input } from "antd";
+import { Button, Input, Modal, Form } from "antd";
 import { toast } from "react-hot-toast";
 
 interface NewSupplierProps {
@@ -67,61 +60,61 @@ export default function NewSupplier({ isOpen, onClose }: NewSupplierProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>إضافة مورد جديد</DialogTitle>
-        </DialogHeader>
-        <div className="py-4 grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <Input
-              size="large"
-              placeholder="اسم المورد"
-              name="name"
-              value={form.name}
-              onChange={handleInputChange}
-            />
-            {errors.name && (
-              <span className="text-red-500 text-sm">{errors.name}</span>
-            )}
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="رقم الهاتف"
-              name="phoneNumber"
-              value={form.phoneNumber}
-              onChange={handleInputChange}
-            />
-            {errors.phoneNumber && (
-              <span className="text-red-500 text-sm">{errors.phoneNumber}</span>
-            )}
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="العنوان"
-              name="address"
-              value={form.address}
-              onChange={handleInputChange}
-            />
-            {errors.address && (
-              <span className="text-red-500 text-sm">{errors.address}</span>
-            )}
-          </div>
+    <Modal
+      open={isOpen}
+      onCancel={onClose}
+      title="إضافة مورد جديد"
+      footer={[
+        <Button key="cancel" onClick={onClose}>إلغاء</Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={mutation.isPending}
+          loading={mutation.isPending}
+        >
+          إنشاء
+        </Button>
+      ]}
+    >
+      <div className="py-4 grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <Input
+            size="large"
+            placeholder="اسم المورد"
+            name="name"
+            value={form.name}
+            onChange={handleInputChange}
+          />
+          {errors.name && (
+            <span className="text-red-500 text-sm">{errors.name}</span>
+          )}
         </div>
-        <DialogFooter>
-          <Button onClick={onClose}>إلغاء</Button>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            disabled={mutation.isPending}
-            loading={mutation.isPending}
-          >
-            إنشاء
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div>
+          <Input
+            size="large"
+            placeholder="رقم الهاتف"
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={handleInputChange}
+          />
+          {errors.phoneNumber && (
+            <span className="text-red-500 text-sm">{errors.phoneNumber}</span>
+          )}
+        </div>
+        <div>
+          <Input
+            size="large"
+            placeholder="العنوان"
+            name="address"
+            value={form.address}
+            onChange={handleInputChange}
+          />
+          {errors.address && (
+            <span className="text-red-500 text-sm">{errors.address}</span>
+          )}
+        </div>
+      </div>
+    </Modal>
   );
 }

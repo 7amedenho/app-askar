@@ -147,3 +147,52 @@ export async function POST(
     );
   }
 }
+
+// تحديث حالة الفاتورة والمبلغ المدفوع
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const id = parseInt(params.id);
+    const data = await req.json();
+    const { paidAmount, status } = data;
+
+    // التحقق من صحة المعرف
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: "معرف الفاتورة غير صالح" },
+        { status: 400 }
+      );
+    }
+
+    // التحقق من وجود الفاتورة
+    const invoice = await prisma.supplierInvoice.findUnique({
+      where: { id },
+    });
+
+    if (!invoice) {
+      return NextResponse.json(
+        { error: "الفاتورة غير موجودة" },
+        { status: 404 }
+      );
+    }
+
+    // تحديث الفاتورة
+    const updatedInvoice = await prisma.supplierInvoice.update({
+      where: { id },
+      data: {
+        paidAmount,
+        status,
+      },
+    });
+
+    return NextResponse.json(updatedInvoice);
+  } catch (error) {
+    console.error("خطأ في تحديث بيانات الفاتورة:", error);
+    return NextResponse.json(
+      { error: "حدث خطأ في تحديث بيانات الفاتورة" },
+      { status: 500 }
+    );
+  }
+}

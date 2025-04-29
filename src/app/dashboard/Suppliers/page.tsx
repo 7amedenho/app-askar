@@ -3,13 +3,14 @@ import { Table, Input, Button, Spin, Modal } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { FaTrashAlt, FaPen } from "react-icons/fa";
 import { useState } from "react";
-import { Printer } from "lucide-react";
+import { Printer, DollarSign, FileText } from "lucide-react";
 import React from "react";
 import { Card } from "@/components/ui/card";
 import NewSupplier from "./NewSupplier";
 import EditSupplier from "./EditSupplier";
 import NewInvoice from "./NewInvoice";
 import SupplierStatement from "./SupplierStatement";
+import InvoicesList from "./InvoicesList";
 import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
@@ -20,6 +21,7 @@ export default function SuppliersPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [isStatementOpen, setIsStatementOpen] = useState(false);
+  const [isInvoicesListOpen, setIsInvoicesListOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const queryClient = useQueryClient();
@@ -280,12 +282,17 @@ export default function SuppliersPage() {
     { title: "الاسم", dataIndex: "name", key: "name" },
     { title: "رقم الهاتف", dataIndex: "phoneNumber", key: "phoneNumber" },
     { title: "العنوان", dataIndex: "address", key: "address" },
-    { title: "الرصيد", dataIndex: "balance", key: "balance" },
+    { 
+      title: "الرصيد", 
+      dataIndex: "balance", 
+      key: "balance",
+      render: (value: number) => `${Number(value).toLocaleString()} ج.م`
+    },
     {
       title: "العمليات",
       key: "actions",
       render: (_: any, record: any) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             type="text"
             onClick={() => {
@@ -308,6 +315,7 @@ export default function SuppliersPage() {
               setSelectedSupplier(record);
               setIsInvoiceOpen(true);
             }}
+            icon={<PlusOutlined />}
           >
             إضافة فاتورة
           </Button>
@@ -315,8 +323,19 @@ export default function SuppliersPage() {
             type="default"
             onClick={() => {
               setSelectedSupplier(record);
+              setIsInvoicesListOpen(true);
+            }}
+            icon={<FileText className="h-4 w-4" />}
+          >
+            قائمة الفواتير
+          </Button>
+          <Button
+            type="default"
+            onClick={() => {
+              setSelectedSupplier(record);
               setIsStatementOpen(true);
             }}
+            icon={<DollarSign className="h-4 w-4" />}
           >
             كشف حساب
           </Button>
@@ -328,13 +347,14 @@ export default function SuppliersPage() {
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-semibold text-center">إدارة الموردين</h1>
-      <div className="flex items-center">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <Input
           placeholder="بحث عن مورد"
           prefix={<SearchOutlined />}
           onChange={handleSearch}
+          className="w-64"
         />
-        <div className="flex items-center gap-2 mx-2">
+        <div className="flex items-center gap-2">
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -349,7 +369,7 @@ export default function SuppliersPage() {
       </div>
       <Card>
         {isLoading ? (
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center p-12">
             <Spin size="large" />
           </div>
         ) : (
@@ -370,6 +390,12 @@ export default function SuppliersPage() {
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={1}>
                     {suppliersData.length}
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={2}>
+                    إجمالي الأرصدة
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={3}>
+                    {suppliersData.reduce((sum: number, sup: any) => sum + Number(sup.balance), 0).toLocaleString()} ج.م
                   </Table.Summary.Cell>
                 </Table.Summary.Row>
               </Table.Summary>
@@ -404,9 +430,16 @@ export default function SuppliersPage() {
           supplier={selectedSupplier}
         />
       )}
+      {isInvoicesListOpen && selectedSupplier && (
+        <InvoicesList
+          isOpen={isInvoicesListOpen}
+          onClose={() => setIsInvoicesListOpen(false)}
+          supplier={selectedSupplier}
+        />
+      )}
       <Modal
         title="تأكيد الحذف"
-        visible={isDeleteModalVisible}
+        open={isDeleteModalVisible}
         onOk={() => {
           deleteMutation.mutate(selectedSupplier.id);
           setIsDeleteModalVisible(false);

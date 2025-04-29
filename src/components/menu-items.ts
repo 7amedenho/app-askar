@@ -56,6 +56,7 @@ export const items: MenuGroup[] = [
       { title: "إدارة المشاريع", url: "/dashboard/Projects", icon: Construction },
       { title: "إدارة طاقم المشروع", url: "/dashboard/daily-worker-assignments", icon: HardHat },
       { title: "التعاملات الخارجية", url: "/dashboard/CompanyContracts", icon: Folders },
+      { title: "إدارة التوريدات والمخزون", url: "/dashboard/UsedMaterials", icon: Package },
     ],
   },
   {

@@ -2,14 +2,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button, Input } from "antd";
+import { Button, Input, Modal } from "antd";
 import { toast } from "react-hot-toast";
 
 interface EditSupplierProps {
@@ -70,52 +63,52 @@ export default function EditSupplier({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>تعديل بيانات المورد</DialogTitle>
-        </DialogHeader>
-        <div className="py-4 grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <Input
-              size="large"
-              placeholder="اسم المورد"
-              name="name"
-              value={form.name}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="رقم الهاتف"
-              name="phoneNumber"
-              value={form.phoneNumber}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="العنوان"
-              name="address"
-              value={form.address}
-              onChange={handleInputChange}
-            />
-          </div>
+    <Modal
+      open={isOpen}
+      onCancel={onClose}
+      title="تعديل بيانات المورد"
+      footer={[
+        <Button key="cancel" onClick={onClose}>إلغاء</Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={mutation.isPending}
+          loading={mutation.isPending}
+        >
+          حفظ
+        </Button>
+      ]}
+    >
+      <div className="py-4 grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <Input
+            size="large"
+            placeholder="اسم المورد"
+            name="name"
+            value={form.name}
+            onChange={handleInputChange}
+          />
         </div>
-        <DialogFooter>
-          <Button onClick={onClose}>إلغاء</Button>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            disabled={mutation.isPending}
-            loading={mutation.isPending}
-          >
-            حفظ
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div>
+          <Input
+            size="large"
+            placeholder="رقم الهاتف"
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <Input
+            size="large"
+            placeholder="العنوان"
+            name="address"
+            value={form.address}
+            onChange={handleInputChange}
+          />
+        </div>
+      </div>
+    </Modal>
   );
 }

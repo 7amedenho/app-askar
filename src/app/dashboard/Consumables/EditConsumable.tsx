@@ -96,7 +96,7 @@ const EditConsumable = ({ isOpen, onClose, consumableId }: EditConsumableProps) 
           label="اسم المستهلك"
           rules={[{ required: true, message: "الرجاء إدخال اسم المستهلك" }]}
         >
-          <Input placeholder="أدخل اسم المستهلك" />
+          <Input placeholder="أدخل اسم المستهلك" value={consumable?.name} />
         </Form.Item>
 
         <Form.Item
@@ -104,11 +104,11 @@ const EditConsumable = ({ isOpen, onClose, consumableId }: EditConsumableProps) 
           label="وحدة القياس"
           rules={[{ required: true, message: "الرجاء إدخال وحدة القياس" }]}
         >
-          <Input placeholder="مثال: كيس، متر، كيلو" />
+          <Input placeholder="مثال: كيس، متر، كيلو" value={consumable?.unit} />
         </Form.Item>
 
         <Form.Item name="brand" label="الماركة">
-          <Input placeholder="أدخل الماركة (اختياري)" />
+          <Input placeholder="أدخل الماركة (اختياري)" value={consumable?.brand} />
         </Form.Item>
 
         <Form.Item
@@ -120,6 +120,7 @@ const EditConsumable = ({ isOpen, onClose, consumableId }: EditConsumableProps) 
             min={0}
             placeholder="أدخل الكمية"
             className="w-full"
+            value={consumable?.stock}
           />
         </Form.Item>
 
@@ -128,7 +129,7 @@ const EditConsumable = ({ isOpen, onClose, consumableId }: EditConsumableProps) 
           label="المورد"
           rules={[{ required: true, message: "الرجاء اختيار المورد" }]}
         >
-          <Select placeholder="اختر المورد">
+          <Select placeholder="اختر المورد" value={consumable?.supplierId}>
             {suppliers.map((supplier) => (
               <Select.Option key={supplier.id} value={supplier.id}>
                 {supplier.name}
