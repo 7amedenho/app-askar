@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button, Input } from "antd";
+import { Button, Input, Modal, Switch } from "antd";
 import { toast } from "react-hot-toast";
 
 interface EditEmployeeProps {
@@ -22,6 +22,7 @@ interface EditEmployeeProps {
     phoneNumber: string;
     nationalId: string;
     dailySalary: number;
+    isActive: boolean;
   };
 }
 
@@ -33,6 +34,7 @@ const updateEmployee = async (
     phoneNumber: string;
     nationalId: string;
     dailySalary: number;
+    isActive: boolean;
   }
 ) => {
   const response = await axios.put(`/api/employees/${id}`, data);
@@ -50,6 +52,7 @@ export default function EditEmployee({
     phoneNumber: "",
     nationalId: "",
     dailySalary: "",
+    isActive: true,
   });
 
   const queryClient = useQueryClient();
@@ -62,6 +65,7 @@ export default function EditEmployee({
         phoneNumber: employee.phoneNumber || "",
         nationalId: employee.nationalId || "",
         dailySalary: employee.dailySalary?.toString() || "",
+        isActive: employee.isActive !== false, // Default to true if undefined
       });
     }
   }, [employee, isOpen]);
@@ -73,6 +77,7 @@ export default function EditEmployee({
       phoneNumber: string;
       nationalId: string;
       dailySalary: number;
+      isActive: boolean;
     }) => updateEmployee(employee.id, data),
     onSuccess: () => {
       toast.success("تم تحديث الموظف بنجاح!");
@@ -87,6 +92,10 @@ export default function EditEmployee({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prevForm) => ({ ...prevForm, [name]: value }));
+  };
+
+  const handleSwitchChange = (checked: boolean) => {
+    setForm((prevForm) => ({ ...prevForm, isActive: checked }));
   };
 
   const handleSubmit = () => {
@@ -107,6 +116,7 @@ export default function EditEmployee({
       phoneNumber: form.phoneNumber,
       nationalId: form.nationalId,
       dailySalary: parseInt(form.dailySalary, 10),
+      isActive: form.isActive,
     };
 
     mutation.mutate(payload);
@@ -114,89 +124,80 @@ export default function EditEmployee({
 
  
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="p-6 rounded-lg shadow-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center">
-            تعديل بيانات الموظف
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="py-4 grid grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <Input
-              size="large"
-              placeholder="اسم الموظف"
-              name="name"
-              value={form.name}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="المسمى الوظيفي"
-              name="jobTitle"
-              value={form.jobTitle}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="رقم الهاتف"
-              name="phoneNumber"
-              value={form.phoneNumber}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="الرقم القومي"
-              name="nationalId"
-              value={form.nationalId}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div>
-            <Input
-              size="large"
-              placeholder="الراتب اليومي"
-              type="number"
-              name="dailySalary"
-              value={form.dailySalary}
-              onChange={handleInputChange}
-            />
-          </div>
+    <Modal
+      open={isOpen}
+      onCancel={onClose}
+      title="تعديل بيانات الموظف"
+      footer={[
+        <Button key="cancel" onClick={onClose}>إلغاء</Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          disabled={mutation.isPending}
+          loading={mutation.isPending}
+        >
+          حفظ
+        </Button>
+      ]}
+    >
+      <div className="py-4 grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <Input
+            size="large"
+            placeholder="اسم الموظف"
+            name="name"
+            value={form.name}
+            onChange={handleInputChange}
+          />
         </div>
-
-        <DialogFooter className="flex justify-end gap-2">
-          <Button
-            onClick={onClose}
-            className="bg-gray-300 hover:bg-gray-400 text-black"
-          >
-            إلغاء
-          </Button>
-          <Button
-            type="primary"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={handleSubmit}
-            disabled={
-              mutation.isPending ||
-              !form.name ||
-              !form.jobTitle ||
-              !form.phoneNumber ||
-              !form.nationalId ||
-              !form.dailySalary ||
-              isNaN(parseInt(form.dailySalary))
-            }
-            loading={mutation.isPending}
-          >
-            {mutation.isPending ? "جارٍ التعديل..." : "حفظ التعديلات"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div>
+          <Input
+            size="large"
+            placeholder="المسمى الوظيفي"
+            name="jobTitle"
+            value={form.jobTitle}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <Input
+            size="large"
+            placeholder="رقم الهاتف"
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <Input
+            size="large"
+            placeholder="الرقم القومي"
+            name="nationalId"
+            value={form.nationalId}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <Input
+            size="large"
+            placeholder="الراتب اليومي"
+            type="number"
+            name="dailySalary"
+            value={form.dailySalary}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="flex items-center">
+          <span className="ml-2">موظف نشط</span>
+          <Switch 
+            checked={form.isActive} 
+            onChange={handleSwitchChange} 
+            checkedChildren="نشط" 
+            unCheckedChildren="غير نشط"
+          />
+        </div>
+      </div>
+    </Modal>
   );
 }

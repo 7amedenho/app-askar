@@ -1,5 +1,5 @@
 "use client";
-import { Table, Input, Button, Spin, Modal } from "antd";
+import { Table, Input, Button, Spin, Modal, Select, Tag } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { FaTrashAlt, FaPen } from "react-icons/fa";
 import { useState } from "react";
@@ -12,14 +12,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import EditEmployee from "./EditEmployee";
 import { toast } from "react-hot-toast";
 import { printEmployeesReport } from "./printEmployeesReport";
+
+const { Option } = Select;
+
 export default function EmployeesPage() {
-  const [, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [employees, setEmployees] = useState<any[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
   const queryClient = useQueryClient();
 
   // جلب بيانات الموظفين من API
@@ -37,17 +41,42 @@ export default function EmployeesPage() {
   React.useEffect(() => {
     if (employeesData && employeesData.length > 0) {
       setEmployees(employeesData);
-      setFilteredEmployees(employeesData);
+      applyFilters(employeesData, searchText, statusFilter);
     }
   }, [employeesData]);
+
+  // تطبيق الفلترة على البيانات
+  const applyFilters = (data: any[], searchValue: string, status: string) => {
+    let filtered = [...data];
+    
+    // تطبيق فلتر البحث
+    if (searchValue) {
+      filtered = filtered.filter(emp => 
+        emp.name.toLowerCase().includes(searchValue.toLowerCase())
+      );
+    }
+    
+    // تطبيق فلتر الحالة
+    if (status !== 'all') {
+      filtered = filtered.filter(emp => 
+        status === 'active' ? emp.isActive : !emp.isActive
+      );
+    }
+    
+    setFilteredEmployees(filtered);
+  };
 
   // دالة البحث عن الموظف
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     setSearchText(value);
-    setFilteredEmployees(
-      employees.filter((emp) => emp.name.toLowerCase().includes(value))
-    );
+    applyFilters(employees, value, statusFilter);
+  };
+
+  // دالة تغيير فلتر الحالة
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    applyFilters(employees, searchText, value);
   };
 
   // دالة الحذف باستخدام useMutation
@@ -95,6 +124,16 @@ export default function EmployeesPage() {
     { title: "اليومية", dataIndex: "dailySalary", key: "dailySalary" },
     { title: "رقم الهاتف", dataIndex: "phoneNumber", key: "phoneNumber" },
     { title: "الرقم القومي", dataIndex: "nationalId", key: "nationalId" },
+    { 
+      title: "الحالة", 
+      dataIndex: "isActive", 
+      key: "isActive",
+      render: (isActive: boolean) => (
+        <Tag color={isActive ? 'green' : 'red'}>
+          {isActive ? 'نشط' : 'غير نشط'}
+        </Tag>
+      ),
+    },
     {
       title: "العمليات",
       key: "actions",
@@ -124,13 +163,25 @@ export default function EmployeesPage() {
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-semibold text-center">إدارة الموظفين</h1>
-      <div className="items-center flex">
-        <Input
-          placeholder="بحث عن الموظف"
-          prefix={<SearchOutlined />}
-          onChange={handleSearch}
-        />
-        <div className="flex items-center justify-between gap-2 mx-2">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-3">
+          <Input
+            placeholder="بحث عن الموظف"
+            prefix={<SearchOutlined />}
+            onChange={handleSearch}
+            style={{ width: 200 }}
+          />
+          <Select 
+            defaultValue="all" 
+            onChange={handleStatusFilterChange}
+            style={{ width: 120 }}
+          >
+            <Option value="all">الكل</Option>
+            <Option value="active">نشط</Option>
+            <Option value="inactive">غير نشط</Option>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -153,7 +204,6 @@ export default function EmployeesPage() {
             columns={columns}
             dataSource={filteredEmployees}
             pagination={{ pageSize: 5 }}
-            className="shadow-md rounded-lg"
             bordered
             rowKey="id"
             summary={() => (
@@ -164,6 +214,12 @@ export default function EmployeesPage() {
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={1}>
                     {filteredEmployees.length}
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={2}>
+                    نشط: {filteredEmployees.filter(emp => emp.isActive).length}
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={3}>
+                    غير نشط: {filteredEmployees.filter(emp => !emp.isActive).length}
                   </Table.Summary.Cell>
                 </Table.Summary.Row>
               </Table.Summary>
@@ -186,7 +242,7 @@ export default function EmployeesPage() {
       )}
       <Modal
         title="تأكيد الحذف"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={() => handleDelete(selectedEmployee.id)}
         onCancel={() => setIsModalVisible(false)}
         okText="حذف"

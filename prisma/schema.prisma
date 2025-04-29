@@ -16,6 +16,8 @@ model Employee {
   phoneNumber      String                  @unique
   dailySalary      Int                     @default(0)
   budget           Int                     @default(0)
+  isActive         Boolean                 @default(true)
+  fingerprint      String?                 @unique
   attendance       Attendance[]            @relation("EmployeeAttendance")
   deductions       Deduction[]             @relation("EmployeeDeduction")
   bonuses          Bonus[]                 @relation("EmployeeBonus")
