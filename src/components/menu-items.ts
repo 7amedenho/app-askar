@@ -16,6 +16,7 @@ import {
   UserCog,
   Construction,
   Folders,
+  Upload,
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -40,6 +41,7 @@ export const items: MenuGroup[] = [
     items: [
       { title: "إدارة الموظفين", url: "/dashboard/Employees", icon: Users },
       { title: "الحضور والانصراف", url: "/dashboard/Attendance", icon: Clock },
+      { title: "تحميل البيانات", url: "/dashboard/UploadData", icon: Upload },
     ],
   },
   {

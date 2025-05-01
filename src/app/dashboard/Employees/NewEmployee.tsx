@@ -10,8 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button, Input } from "antd";
+import { Button, Input, Tooltip } from "antd";
 import { toast } from "react-hot-toast";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 interface NewEmployeeProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export default function NewEmployee({ isOpen, onClose }: NewEmployeeProps) {
     phoneNumber: "",
     nationalId: "",
     dailySalary: "",
+    fingerprint: "",
   });
 
   const [errors, setErrors] = useState<any>({});
@@ -36,6 +38,7 @@ export default function NewEmployee({ isOpen, onClose }: NewEmployeeProps) {
       const response = await axios.post("/api/employees", {
         ...data,
         dailySalary: parseFloat(data.dailySalary), // تحويل إلى عدد
+        fingerprint: data.fingerprint || null,
       });
       return response.data;
     },
@@ -48,6 +51,7 @@ export default function NewEmployee({ isOpen, onClose }: NewEmployeeProps) {
         phoneNumber: "",
         nationalId: "",
         dailySalary: "",
+        fingerprint: "",
       });
       setErrors({});
       onClose();
@@ -163,6 +167,21 @@ export default function NewEmployee({ isOpen, onClose }: NewEmployeeProps) {
             {errors.dailySalary && (
               <span className="text-red-500 text-sm">{errors.dailySalary}</span>
             )}
+          </div>
+          
+          <div>
+            <Input
+              size="large"
+              placeholder="معرف البصمة"
+              name="fingerprint"
+              value={form.fingerprint}
+              onChange={handleInputChange}
+              suffix={
+                <Tooltip title="أدخل معرف الموظف من نظام البصمة ZKTeco لاستخدامه في تحميل بيانات الحضور والانصراف">
+                  <QuestionCircleOutlined style={{ color: 'rgba(0,0,0,.45)' }} />
+                </Tooltip>
+              }
+            />
           </div>
         </div>
 

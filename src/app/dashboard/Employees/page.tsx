@@ -125,6 +125,14 @@ export default function EmployeesPage() {
     { title: "رقم الهاتف", dataIndex: "phoneNumber", key: "phoneNumber" },
     { title: "الرقم القومي", dataIndex: "nationalId", key: "nationalId" },
     { 
+      title: "معرف البصمة", 
+      dataIndex: "fingerprint", 
+      key: "fingerprint",
+      render: (fingerprint: string | null) => (
+        fingerprint ? fingerprint : <span style={{ color: '#999' }}>غير مسجل</span>
+      )
+    },
+    { 
       title: "الحالة", 
       dataIndex: "isActive", 
       key: "isActive",
@@ -228,28 +236,36 @@ export default function EmployeesPage() {
         )}
       </Card>
       {isModalOpen && (
-        <NewProject
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <NewProject isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       )}
-      {isEditOpen && selectedEmployee && (
+
+      {selectedEmployee && isEditOpen && (
         <EditEmployee
           isOpen={isEditOpen}
           onClose={() => setIsEditOpen(false)}
-          employee={selectedEmployee}
+          employee={{
+            id: selectedEmployee.id,
+            name: selectedEmployee.name,
+            jobTitle: selectedEmployee.jobTitle,
+            phoneNumber: selectedEmployee.phoneNumber,
+            nationalId: selectedEmployee.nationalId,
+            dailySalary: selectedEmployee.dailySalary,
+            isActive: selectedEmployee.isActive,
+            fingerprint: selectedEmployee.fingerprint,
+          }}
         />
       )}
+
       <Modal
         title="تأكيد الحذف"
         open={isModalVisible}
-        onOk={() => handleDelete(selectedEmployee.id)}
+        onOk={() => handleDelete(selectedEmployee?.id)}
         onCancel={() => setIsModalVisible(false)}
         okText="حذف"
         cancelText="إلغاء"
-        confirmLoading={deleteMutation.isPending}
+        okButtonProps={{ danger: true }}
       >
-        <p>هل أنت متأكد أنك تريد حذف هذا الموظف؟</p>
+        <p>هل أنت متأكد من حذف الموظف: {selectedEmployee?.name}؟</p>
       </Modal>
     </div>
   );

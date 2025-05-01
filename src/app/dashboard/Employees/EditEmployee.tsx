@@ -9,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button, Input, Modal, Switch } from "antd";
+import { Button, Input, Modal, Switch, Tooltip } from "antd";
 import { toast } from "react-hot-toast";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 interface EditEmployeeProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ interface EditEmployeeProps {
     nationalId: string;
     dailySalary: number;
     isActive: boolean;
+    fingerprint?: string | null;
   };
 }
 
@@ -35,6 +37,7 @@ const updateEmployee = async (
     nationalId: string;
     dailySalary: number;
     isActive: boolean;
+    fingerprint?: string | null;
   }
 ) => {
   const response = await axios.put(`/api/employees/${id}`, data);
@@ -53,6 +56,7 @@ export default function EditEmployee({
     nationalId: "",
     dailySalary: "",
     isActive: true,
+    fingerprint: "",
   });
 
   const queryClient = useQueryClient();
@@ -66,6 +70,7 @@ export default function EditEmployee({
         nationalId: employee.nationalId || "",
         dailySalary: employee.dailySalary?.toString() || "",
         isActive: employee.isActive !== false, // Default to true if undefined
+        fingerprint: employee.fingerprint || "",
       });
     }
   }, [employee, isOpen]);
@@ -78,6 +83,7 @@ export default function EditEmployee({
       nationalId: string;
       dailySalary: number;
       isActive: boolean;
+      fingerprint?: string | null;
     }) => updateEmployee(employee.id, data),
     onSuccess: () => {
       toast.success("تم تحديث الموظف بنجاح!");
@@ -117,6 +123,7 @@ export default function EditEmployee({
       nationalId: form.nationalId,
       dailySalary: parseInt(form.dailySalary, 10),
       isActive: form.isActive,
+      fingerprint: form.fingerprint || null,
     };
 
     mutation.mutate(payload);
@@ -195,6 +202,20 @@ export default function EditEmployee({
             onChange={handleSwitchChange} 
             checkedChildren="نشط" 
             unCheckedChildren="غير نشط"
+          />
+        </div>
+        <div className="col-span-2">
+          <Input
+            size="large"
+            placeholder="معرف البصمة"
+            name="fingerprint"
+            value={form.fingerprint}
+            onChange={handleInputChange}
+            suffix={
+              <Tooltip title="أدخل معرف الموظف من نظام البصمة ZKTeco لاستخدامه في تحميل بيانات الحضور والانصراف">
+                <QuestionCircleOutlined style={{ color: 'rgba(0,0,0,.45)' }} />
+              </Tooltip>
+            }
           />
         </div>
       </div>

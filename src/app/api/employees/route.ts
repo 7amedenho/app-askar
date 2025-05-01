@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
         nationalId: body.nationalId,
         phoneNumber: body.phoneNumber,
         dailySalary: dailySalary, // تمرير القيمة كنوع عددي لـ Decimal
+        fingerprint: body.fingerprint || null,
       },
     });
 
@@ -59,13 +60,25 @@ export async function POST(req: NextRequest) {
     // التعامل مع أخطاء قيد الـ @unique
     if (error.code === "P2002") {
       const field = error.meta?.target[0];
+      if (field === "nationalId") {
+        return NextResponse.json(
+          { error: "الرقم القومي موجود مسبقًا" },
+          { status: 400 }
+        );
+      } else if (field === "phoneNumber") {
+        return NextResponse.json(
+          { error: "رقم الهاتف موجود مسبقًا" },
+          { status: 400 }
+        );
+      } else if (field === "fingerprint") {
+        return NextResponse.json(
+          { error: "معرف البصمة موجود مسبقًا" },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
-        {
-          error:
-            field === "nationalId"
-              ? "الرقم القومي موجود مسبقًا"
-              : "رقم الهاتف موجود مسبقًا",
-        },
+        { error: `الحقل "${field}" موجود مسبقًا` },
         { status: 400 }
       );
     }
