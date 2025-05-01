@@ -252,7 +252,7 @@ export default function PrintTransaction({
                 <div class="detail-label">قيمة العقد:</div>
                 <div class="detail-value">${
                   transaction?.contractValue?.toLocaleString() || "0"
-                } ريال</div>
+                } جنيه</div>
               </div>
               
               <div class="detail-row">
@@ -264,7 +264,7 @@ export default function PrintTransaction({
                 <div class="detail-label">قيمة الفاتورة:</div>
                 <div class="detail-value">${
                   transaction?.invoiceValue
-                    ? transaction.invoiceValue.toLocaleString() + " ريال"
+                    ? transaction.invoiceValue.toLocaleString() + " جنيه"
                     : "-"
                 }</div>
               </div>
@@ -287,7 +287,7 @@ export default function PrintTransaction({
                 <div class="detail-label">القيمة المدفوعة للشهادة:</div>
                 <div class="detail-value">${
                   transaction?.certificateValue
-                    ? transaction.certificateValue.toLocaleString() + " ريال"
+                    ? transaction.certificateValue.toLocaleString() + " جنيه"
                     : "-"
                 }</div>
               </div>
@@ -387,7 +387,7 @@ export default function PrintTransaction({
               </div>
               <div>
                 <p className="font-semibold">قيمة العقد:</p>
-                <p>{transaction.contractValue?.toLocaleString()} ريال</p>
+                <p>{transaction.contractValue?.toLocaleString()} جنيه</p>
               </div>
               <div>
                 <p className="font-semibold">النسبة (%):</p>

@@ -224,7 +224,7 @@ export default function CompanyContractsPage() {
       title: "قيمة العقد",
       dataIndex: "contractValue",
       key: "contractValue",
-      render: (value: number) => value?.toLocaleString() + " ريال" || "-",
+      render: (value: number) => value?.toLocaleString() + " جنيه" || "-",
       sorter: (a: any, b: any) => a.contractValue - b.contractValue,
     },
     {
