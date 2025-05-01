@@ -412,6 +412,11 @@ const Reports = () => {
                 placeholder="اختر الشركة"
                 className="w-full"
                 allowClear
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+                }
                 onChange={(value) => setCompanyId(value)}
                 value={companyId}
               >
@@ -431,6 +436,11 @@ const Reports = () => {
                 placeholder="اختر الفاتورة"
                 className="w-full"
                 allowClear
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+                }
                 onChange={(value) => setInvoiceId(value)}
                 value={invoiceId}
               >
