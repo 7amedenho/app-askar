@@ -18,10 +18,20 @@ export async function POST(req: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Parse Excel file
-        const workbook = XLSX.read(buffer, { type: "buffer" });
+        // Parse Excel file with cellDates option to better handle dates
+        const workbook = XLSX.read(buffer, { 
+            type: "buffer",
+            cellDates: true,
+            cellNF: true,
+            dateNF: 'yyyy-mm-dd'
+        });
+        
+        // Check if workbook uses 1904 date system
+        const isDate1904 = !!(workbook.Workbook && workbook.Workbook.WBProps && workbook.Workbook.WBProps.date1904);
+        
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(worksheet);
+        // Use raw: false to get formatted strings instead of raw values
+        const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
         if (!data || data.length === 0) {
             return NextResponse.json(
@@ -76,67 +86,39 @@ export async function POST(req: NextRequest) {
                 let parsedCheckOut: Date | null = null;
 
                 try {
-                    // Try to parse the date (could be string or Excel date number)
-                    if (typeof date === "number") {
-                        // Excel date number
-                        parsedDate = XLSX.SSF.parse_date_code(date);
-                    } else {
-                        // String date
-                        parsedDate = new Date(date);
-                    }
-
-                    // Parse check-in time
-                    if (typeof checkIn === "number") {
-                        // Excel time number
-                        const timeObj = XLSX.SSF.parse_date_code(checkIn);
-                        parsedCheckIn = new Date(
-                            parsedDate.getFullYear(),
-                            parsedDate.getMonth(),
-                            parsedDate.getDate(),
-                            timeObj.H || 0,
-                            timeObj.M || 0,
-                            timeObj.S || 0
-                        );
-                    } else {
-                        // String time
-                        const [hours, minutes] = checkIn.toString().split(":");
-                        parsedCheckIn = new Date(
-                            parsedDate.getFullYear(),
-                            parsedDate.getMonth(),
-                            parsedDate.getDate(),
-                            parseInt(hours) || 0,
-                            parseInt(minutes) || 0,
-                            0
-                        );
-                    }
+                    // Improved date parsing that's more robust with different formats
+                    parsedDate = parseExcelDate(date, isDate1904);
+                    
+                    // Parse check-in time and combine with the date
+                    const checkInTime = parseExcelTime(checkIn);
+                    parsedCheckIn = new Date(
+                        parsedDate.getFullYear(),
+                        parsedDate.getMonth(),
+                        parsedDate.getDate(),
+                        checkInTime.hours,
+                        checkInTime.minutes,
+                        checkInTime.seconds
+                    );
 
                     // Parse check-out time if available
                     if (checkOut) {
-                        if (typeof checkOut === "number") {
-                            // Excel time number
-                            const timeObj = XLSX.SSF.parse_date_code(checkOut);
-                            parsedCheckOut = new Date(
-                                parsedDate.getFullYear(),
-                                parsedDate.getMonth(),
-                                parsedDate.getDate(),
-                                timeObj.H || 0,
-                                timeObj.M || 0,
-                                timeObj.S || 0
-                            );
-                        } else {
-                            // String time
-                            const [hours, minutes] = checkOut.toString().split(":");
-                            parsedCheckOut = new Date(
-                                parsedDate.getFullYear(),
-                                parsedDate.getMonth(),
-                                parsedDate.getDate(),
-                                parseInt(hours) || 0,
-                                parseInt(minutes) || 0,
-                                0
-                            );
+                        const checkOutTime = parseExcelTime(checkOut);
+                        parsedCheckOut = new Date(
+                            parsedDate.getFullYear(),
+                            parsedDate.getMonth(),
+                            parsedDate.getDate(),
+                            checkOutTime.hours,
+                            checkOutTime.minutes,
+                            checkOutTime.seconds
+                        );
+                        
+                        // Handle case where checkout is on the next day
+                        if (parsedCheckOut < parsedCheckIn) {
+                            parsedCheckOut.setDate(parsedCheckOut.getDate() + 1);
                         }
                     }
                 } catch (error) {
+                    console.error("Date parsing error:", error, { date, checkIn, checkOut });
                     result.failed++;
                     result.errors.push({
                         userId: userId.toString(),
@@ -154,13 +136,16 @@ export async function POST(req: NextRequest) {
                     overtimeHours = hoursWorked > 8 ? hoursWorked - 8 : 0;
                 }
 
+                // Create date for database query (clone the date to avoid modifying parsedDate)
+                const queryDate = new Date(parsedDate.getTime());
+
                 // Check if attendance record for this employee and date already exists
                 const existingAttendance = await prisma.attendance.findFirst({
                     where: {
                         employeeId: employee.id,
                         date: {
-                            gte: new Date(parsedDate.setHours(0, 0, 0, 0)),
-                            lt: new Date(parsedDate.setHours(23, 59, 59, 999)),
+                            gte: new Date(queryDate.setHours(0, 0, 0, 0)),
+                            lt: new Date(queryDate.setHours(23, 59, 59, 999)),
                         },
                     },
                 });
@@ -217,6 +202,91 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+/**
+ * Parse an Excel date value into a JavaScript Date object
+ */
+function parseExcelDate(dateValue: any, isDate1904: boolean = false): Date {
+    // If already a Date object, return it
+    if (dateValue instanceof Date) return dateValue;
+    
+    // If it's a number, it's an Excel date code
+    if (typeof dateValue === "number") {
+        // Use XLSX.SSF.parse_date_code to get date parts
+        const dateObj = XLSX.SSF.parse_date_code(dateValue, { date1904: isDate1904 });
+        return new Date(dateObj.y, dateObj.m - 1, dateObj.d);
+    }
+    
+    // Try to parse ISO date format (YYYY-MM-DD)
+    if (typeof dateValue === "string") {
+        // Check if it matches YYYY-MM-DD format
+        const isoMatch = dateValue.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (isoMatch) {
+            return new Date(
+                parseInt(isoMatch[1]), 
+                parseInt(isoMatch[2]) - 1, 
+                parseInt(isoMatch[3])
+            );
+        }
+        
+        // Check if it matches DD/MM/YYYY format
+        const ddmmMatch = dateValue.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+        if (ddmmMatch) {
+            return new Date(
+                parseInt(ddmmMatch[3]),
+                parseInt(ddmmMatch[2]) - 1,
+                parseInt(ddmmMatch[1])
+            );
+        }
+    }
+    
+    // Fallback: let JavaScript try to parse the date
+    const date = new Date(dateValue);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+        throw new Error(`Invalid date format: ${dateValue}`);
+    }
+    
+    return date;
+}
+
+/**
+ * Parse an Excel time value into hours, minutes, and seconds
+ */
+function parseExcelTime(timeValue: any): { hours: number; minutes: number; seconds: number } {
+    // Default values
+    let hours = 0, minutes = 0, seconds = 0;
+    
+    if (typeof timeValue === "number") {
+        // Excel time is stored as a fraction of 24 hours
+        const totalSeconds = timeValue * 24 * 60 * 60;
+        hours = Math.floor(totalSeconds / 3600);
+        minutes = Math.floor((totalSeconds % 3600) / 60);
+        seconds = Math.floor(totalSeconds % 60);
+    } else if (typeof timeValue === "string") {
+        // Try to parse hh:mm(:ss) format
+        const timeParts = timeValue.split(':').map(Number);
+        
+        if (timeParts.length >= 2) {
+            hours = timeParts[0] || 0;
+            minutes = timeParts[1] || 0;
+            seconds = timeParts[2] || 0;
+        }
+    } else if (timeValue instanceof Date) {
+        // If it's already a Date object, extract time components
+        hours = timeValue.getHours();
+        minutes = timeValue.getMinutes();
+        seconds = timeValue.getSeconds();
+    }
+    
+    // Ensure values are within valid ranges
+    hours = Math.min(23, Math.max(0, hours));
+    minutes = Math.min(59, Math.max(0, minutes));
+    seconds = Math.min(59, Math.max(0, seconds));
+    
+    return { hours, minutes, seconds };
 }
 
 async function updateEmployeeBudget(
