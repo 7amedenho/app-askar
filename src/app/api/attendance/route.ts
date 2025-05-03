@@ -149,7 +149,7 @@ async function updateEmployeeBudget(
         const overtimeRate = hourlyRate * 1.5;
         amountToAdd += overtimeHours * overtimeRate;
       }
-    } else if (hoursWorked >= 6.5) {
+    } else if (hoursWorked >= 7.5) {
       amountToAdd = dailySalary;
     } else {
       amountToAdd = hoursWorked * hourlyRate;
