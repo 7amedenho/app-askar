@@ -253,24 +253,31 @@ export default function AttendancePage() {
       key: "status",
       render: (record: AttendanceRecord) => {
         const checkInTime = new Date(record.checkIn);
+        const checkOutTime = record.checkOut ? new Date(record.checkOut) : null;
+
         let status = "حاضر";
         let color = "green";
+
+        const isLate =
+          checkInTime.getHours() > 8 ||
+          (checkInTime.getHours() === 8 && checkInTime.getMinutes() > 30);
+
+        const leftEarly = checkOutTime && checkOutTime.getHours() < 15;
+
         if (!record.checkOut) {
-          status = "لم يسجل خروج";
+          status = "بدون خروج";
           color = "red";
-        } else if (
-          checkInTime.getHours() >= 8 &&
-          checkInTime.getMinutes() < 45
-        ) {
+        } else if (isLate && leftEarly) {
+          status = "متأخر+مبكر";
+          color = "magenta";
+        } else if (isLate) {
           status = "متأخر";
           color = "orange";
-        } else if (record.checkOut) {
-          const checkOutTime = new Date(record.checkOut);
-          if (checkOutTime.getHours() < 15) {
-            status = "خروج مبكر";
-            color = "purple";
-          }
+        } else if (leftEarly) {
+          status = "مبكر";
+          color = "purple";
         }
+
         return (
           <span
             style={{
@@ -286,6 +293,7 @@ export default function AttendancePage() {
         );
       },
     },
+
     {
       title: "الإجراءات",
       key: "actions",
