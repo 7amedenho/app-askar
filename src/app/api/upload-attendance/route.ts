@@ -265,13 +265,17 @@ function parseExcelDate(dateValue: any, isDate1904: boolean = false): Date {
   if (isNaN(date.getTime())) {
     throw new Error(`Invalid date format: ${dateValue}`);
   }
-  // استخدام توقيت القاهرة بدون تحويل إلى UTC
+  
+  // استخدام moment-timezone للتعامل مع فرق التوقيت
+  // طرح 3 ساعات من الوقت لتصحيح فرق التوقيت
   const m = moment.tz(date, "Africa/Cairo");
-  return m.toDate();
+  const adjustedDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+  return adjustedDate;
+
 }
 
 /**
- * Parse an Excel time value into hours, minutes, and seconds
+ * تحليل قيمة الوقت من ملف Excel إلى ساعات ودقائق وثواني
  */
 function parseExcelTime(timeValue: any): {
   hours: number;
@@ -309,19 +313,11 @@ function parseExcelTime(timeValue: any): {
   hours = Math.min(23, Math.max(0, hours));
   minutes = Math.min(59, Math.max(0, minutes));
   seconds = Math.min(59, Math.max(0, seconds));
-  // استخدام توقيت القاهرة بدون تحويل إلى UTC
-  // إنشاء كائن moment أولاً ثم تطبيق منطقة التوقيت
-  const m = moment.default()
-    .hours(hours)
-    .minutes(minutes)
-    .seconds(seconds)
-    .tz("Africa/Cairo");
-
-  return {
-    hours: m.hours(),
-    minutes: m.minutes(),
-    seconds: m.seconds(),
-  };
+  
+  // طرح 3 ساعات من الوقت لتصحيح فرق التوقيت
+  hours = (hours - 3 + 24) % 24; // نضيف 24 ثم نأخذ باقي القسمة على 24 لضمان أن الساعة تبقى بين 0 و 23
+  
+  return { hours, minutes, seconds };
 }
 
 async function updateEmployeeBudget(
@@ -345,7 +341,7 @@ async function updateEmployeeBudget(
         const overtimeRate = hourlyRate * 1.5;
         amountToAdd += overtimeHours * overtimeRate;
       }
-    } else if (hoursWorked >= 6.5) {
+    } else if (hoursWorked >= 7.5) {
       amountToAdd = dailySalary;
     } else {
       amountToAdd = hoursWorked * hourlyRate;
