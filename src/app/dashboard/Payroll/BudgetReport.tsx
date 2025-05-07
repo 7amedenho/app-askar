@@ -529,7 +529,7 @@ export default function BudgetReport() {
           <Table
             columns={columns}
             dataSource={filteredData}
-            pagination={{ pageSize: 10 }}
+            pagination={{ pageSize: 20 }}
             rowKey="id"
             bordered
             summary={(pageData) => {

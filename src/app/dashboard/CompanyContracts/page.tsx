@@ -211,7 +211,7 @@ export default function CompanyContractsPage() {
       title: "تاريخ العقد",
       dataIndex: "contractDate",
       key: "contractDate",
-      render: (date: string) => new Date(date).toLocaleDateString("ar-SA"),
+      render: (date: string) => new Date(date).toLocaleDateString("ar-EG"),
       sorter: (a: any, b: any) =>
         new Date(a.contractDate).getTime() - new Date(b.contractDate).getTime(),
     },

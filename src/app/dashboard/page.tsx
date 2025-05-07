@@ -391,14 +391,14 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <Title level={3} className="mb-0">
+    <div className="p-8 max-w-7xl mx-auto min-h-screen">
+      <div className="flex justify-between items-center mb-8">
+        <Title level={3} className="mb-0 text-gray-800">
           لوحة التحكم
         </Title>
       </div>
 
-      <div className="mb-6 space-y-3">
+      <div className="mb-8 space-y-4">
         {isConsumablesLoading ? (
           <div className="flex items-center justify-center h-32">
           </div>
@@ -425,8 +425,9 @@ export default function Dashboard() {
             }
             type="warning"
             showIcon={false}
+            className="rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
             action={
-              <Button type="link" href="/dashboard/Consumables">
+              <Button type="link" href="/dashboard/Consumables" className="hover:text-blue-600 transition-colors">
                 فحص المستهلكات
               </Button>
             }
@@ -507,11 +508,11 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <Card className="shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 rounded-xl border-0">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Users className="h-5 w-5 text-blue-500" />
+              <Users className="h-6 w-6 text-blue-500" />
               <span>الموظفين</span>
             </CardTitle>
           </CardHeader>
@@ -523,11 +524,11 @@ export default function Dashboard() {
                 <Statistic
                   value={employees.length}
                   suffix="موظف"
-                  valueStyle={{ color: "#1890ff", fontSize: "1.75rem" }}
+                  valueStyle={{ color: "#1890ff", fontSize: "2rem", fontWeight: "bold" }}
                 />
                 <Link
                   href="/dashboard/Employees"
-                  className="text-sm text-blue-500 hover:underline mt-2"
+                  className="text-sm text-blue-500 hover:text-blue-600 hover:underline mt-3 transition-colors"
                 >
                   عرض الكل
                 </Link>
@@ -536,10 +537,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 rounded-xl border-0">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-green-500" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Package className="h-6 w-6 text-green-500" />
               <span>المستهلكات</span>
             </CardTitle>
           </CardHeader>
@@ -551,12 +552,12 @@ export default function Dashboard() {
                 <Statistic
                   value={consumables.length}
                   suffix="صنف"
-                  valueStyle={{ color: "#52c41a", fontSize: "1.5rem" }}
+                  valueStyle={{ color: "#52c41a", fontSize: "2rem", fontWeight: "bold" }}
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <Link
                     href="/dashboard/Consumables"
-                    className="text-sm text-blue-500 hover:underline"
+                    className="text-sm text-blue-500 hover:text-blue-600 hover:underline mt-3 transition-colors"
                   >
                     عرض الكل
                   </Link>
@@ -573,10 +574,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 rounded-xl border-0">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Wrench className="h-5 w-5 text-amber-500" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Wrench className="h-6 w-6 text-amber-500" />
               <span>المعدات</span>
             </CardTitle>
           </CardHeader>
@@ -588,12 +589,12 @@ export default function Dashboard() {
                 <Statistic
                   value={equipment.length}
                   suffix="معدة"
-                  valueStyle={{ color: "#faad14", fontSize: "1.5rem" }}
+                  valueStyle={{ color: "#faad14", fontSize: "2rem", fontWeight: "bold" }}
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <Link
                     href="/dashboard/Equipment"
-                    className="text-sm text-blue-500 hover:underline"
+                    className="text-sm text-blue-500 hover:text-blue-600 hover:underline mt-3 transition-colors"
                   >
                     عرض الكل
                   </Link>
@@ -610,10 +611,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 rounded-xl border-0">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5 text-purple-500" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Building className="h-6 w-6 text-purple-500" />
               <span>المشاريع</span>
             </CardTitle>
           </CardHeader>
@@ -625,12 +626,12 @@ export default function Dashboard() {
                 <Statistic
                   value={activeProjects.length}
                   suffix="مشروع نشط"
-                  valueStyle={{ color: "#722ed1", fontSize: "1.5rem" }}
+                  valueStyle={{ color: "#722ed1", fontSize: "2rem", fontWeight: "bold" }}
                 />
                 <div className="mt-2 flex items-center justify-between">
                   <Link
                     href="/dashboard/Projects"
-                    className="text-sm text-blue-500 hover:underline"
+                    className="text-sm text-blue-500 hover:text-blue-600 hover:underline mt-3 transition-colors"
                   >
                     عرض الكل
                   </Link>
@@ -648,15 +649,15 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card className="shadow-md">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <Card className="shadow-md hover:shadow-lg transition-all duration-300 rounded-xl border-0">
           <CardHeader>
-            <CardTitle>مصروفات الشهور الأخيرة</CardTitle>
+            <CardTitle className="text-lg">مصروفات الشهور الأخيرة</CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
+          <CardContent className="h-96">
             {isExpensesLoading ? (
               <div className="flex items-center justify-center h-full">
-                <Skeleton.Image active className="w-full h-64" />
+                <Skeleton.Image active className="w-full h-80" />
               </div>
             ) : expenses.length === 0 ? (
               <div className="flex justify-center items-center h-full">
@@ -673,14 +674,14 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-md">
+        <Card className="shadow-md hover:shadow-lg transition-all duration-300 rounded-xl border-0">
           <CardHeader>
-            <CardTitle>توزيع المصروفات حسب النوع</CardTitle>
+            <CardTitle className="text-lg">توزيع المصروفات حسب النوع</CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
+          <CardContent className="h-96">
             {isExpensesLoading ? (
               <div className="flex items-center justify-center h-full">
-                <Skeleton.Image active className="w-full h-64" />
+                <Skeleton.Image active className="w-full h-80" />
               </div>
             ) : Object.keys(expensesByType).length === 0 ? (
               <div className="flex justify-center items-center h-full">
@@ -698,13 +699,13 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="mb-8">
-        <Card className="shadow-sm">
-          <Tabs defaultActiveKey="1" size="large" className="p-4">
+      <div className="mb-10">
+        <Card className="shadow-md hover:shadow-lg transition-all duration-300 rounded-xl border-0">
+          <Tabs defaultActiveKey="1" size="large" className="p-6">
             <TabPane
               tab={
-                <span className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
+                <span className="flex items-center gap-2 text-base">
+                  <Package className="h-5 w-5" />
                   مستهلكات منخفضة المخزون
                   {!isConsumablesLoading && lowStockConsumables.length > 0 && (
                     <Badge count={lowStockConsumables.length} color="warning" />
@@ -713,7 +714,7 @@ export default function Dashboard() {
               }
               key="1"
             >
-              <div className="p-2">
+              <div className="p-4">
                 {isConsumablesLoading ? (
                   <Skeleton active paragraph={{ rows: 6 }} />
                 ) : lowStockConsumables.length === 0 ? (
@@ -730,7 +731,7 @@ export default function Dashboard() {
                         key: "name",
                         render: (text, record: any) => (
                           <div>
-                            <div className="font-medium">{text}</div>
+                            <div className="font-medium text-base">{text}</div>
                             <div className="text-sm text-gray-500">
                               {record.brand || "بدون ماركة"}
                             </div>
@@ -749,13 +750,14 @@ export default function Dashboard() {
                         render: (_, record: any) => {
                           const percent = (record.stock / record.baseQuantity) * 100;
                           return (
-                            <div className="flex items-center gap-2">
-                              <span>{record.stock}</span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-base">{record.stock}</span>
                               <Progress
                                 percent={percent}
                                 size="small"
                                 status={percent <= 10 ? "exception" : "normal"}
-                                className="w-24"
+                                className="w-32"
+                                strokeWidth={8}
                               />
                             </div>
                           );
@@ -765,6 +767,7 @@ export default function Dashboard() {
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
                     size="middle"
+                    className="rounded-lg"
                     locale={{ emptyText: "لا توجد مستهلكات منخفضة" }}
                   />
                 )}
@@ -773,14 +776,14 @@ export default function Dashboard() {
 
             <TabPane
               tab={
-                <span className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4" />
+                <span className="flex items-center gap-2 text-base">
+                  <Wallet className="h-5 w-5" />
                   أحدث المصروفات
                 </span>
               }
               key="3"
             >
-              <div className="p-2">
+              <div className="p-4">
                 {isExpensesLoading ? (
                   <Skeleton active paragraph={{ rows: 6 }} />
                 ) : (
@@ -790,6 +793,7 @@ export default function Dashboard() {
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
                     size="middle"
+                    className="rounded-lg"
                     locale={{ emptyText: "لا توجد مصروفات" }}
                   />
                 )}
@@ -804,14 +808,14 @@ export default function Dashboard() {
 
             <TabPane
               tab={
-                <span className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
+                <span className="flex items-center gap-2 text-base">
+                  <Clock className="h-5 w-5" />
                   سجل الحضور الأخير
                 </span>
               }
               key="4"
             >
-              <div className="p-2">
+              <div className="p-4">
                 {isAttendanceLoading ? (
                   <Skeleton active paragraph={{ rows: 6 }} />
                 ) : (
@@ -821,6 +825,7 @@ export default function Dashboard() {
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
                     size="middle"
+                    className="rounded-lg"
                     locale={{ emptyText: "لا توجد سجلات حضور" }}
                   />
                 )}
@@ -836,11 +841,11 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card className="shadow-md">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <Card className="shadow-md hover:shadow-lg transition-all duration-300 rounded-xl border-0">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-blue-500" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Wallet className="h-6 w-6 text-blue-500" />
               <span>حالة العهد</span>
             </CardTitle>
           </CardHeader>
@@ -852,11 +857,11 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : custodies.length === 0 ? (
-              <div className="text-center p-4 text-gray-500">
+              <div className="text-center p-6 text-gray-500">
                 لا توجد عهد مسجلة
               </div>
             ) : (
-              <div className="space-y-4 max-h-80 overflow-auto">
+              <div className="space-y-6 max-h-96 overflow-auto pr-2">
                 {custodies.slice(0, 5).map((custody: any) => {
                   const percentRemaining = Math.round(
                     (custody.remaining / custody.budget) * 100
@@ -867,9 +872,9 @@ export default function Dashboard() {
                   else if (percentRemaining < 50) statusColor = "warning";
 
                   return (
-                    <div key={custody.id} className="border-b pb-3">
-                      <div className="flex justify-between mb-1">
-                        <span className="font-medium">{custody.name}</span>
+                    <div key={custody.id} className="border-b pb-4 last:border-0">
+                      <div className="flex justify-between mb-2">
+                        <span className="font-medium text-base">{custody.name}</span>
                         <Tag
                           color={
                             percentRemaining < 20
@@ -878,11 +883,12 @@ export default function Dashboard() {
                                 ? "orange"
                                 : "green"
                           }
+                          className="text-sm px-3 py-1"
                         >
                           {percentRemaining}%
                         </Tag>
                       </div>
-                      <div className="flex justify-between mb-1 text-sm text-gray-500">
+                      <div className="flex justify-between mb-2 text-sm text-gray-500">
                         <span>كود: {custody.code}</span>
                         <span>
                           {custody.remaining.toLocaleString()} /{" "}
@@ -893,6 +899,7 @@ export default function Dashboard() {
                         percent={percentRemaining}
                         status={statusColor as any}
                         size="small"
+                        strokeWidth={8}
                         strokeColor={
                           percentRemaining < 20
                             ? "#f5222d"
@@ -908,7 +915,7 @@ export default function Dashboard() {
                   <Button
                     type="link"
                     href="/dashboard/Custody"
-                    className="pr-0"
+                    className="pr-0 hover:text-blue-600 transition-colors"
                   >
                     عرض كل العهد
                   </Button>
@@ -918,10 +925,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-md">
+        <Card className="shadow-md hover:shadow-lg transition-all duration-300 rounded-xl border-0">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Wrench className="h-5 w-5 text-amber-500" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Wrench className="h-6 w-6 text-amber-500" />
               <span>المعدات تحت الصيانة</span>
             </CardTitle>
           </CardHeader>
@@ -933,30 +940,30 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : maintenanceEquipment.length === 0 ? (
-              <div className="text-center p-4 text-green-500">
+              <div className="text-center p-6 text-green-500">
                 جميع المعدات متاحة حالياً
               </div>
             ) : (
-              <div className="space-y-3 max-h-80 overflow-auto">
+              <div className="space-y-4 max-h-96 overflow-auto pr-2">
                 {maintenanceEquipment.map((item: any) => (
                   <div
                     key={item.id}
-                    className="flex justify-between items-center border-b pb-3"
+                    className="flex justify-between items-center border-b pb-4 last:border-0"
                   >
                     <div>
-                      <span className="font-medium">{item.name}</span>
+                      <span className="font-medium text-base">{item.name}</span>
                       {item.brand && (
-                        <span className="text-xs text-gray-500 block">
+                        <span className="text-sm text-gray-500 block">
                           {item.brand}
                         </span>
                       )}
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm text-gray-500">
                         كود: {item.code}
                       </div>
                     </div>
                     <Space>
                       <Badge status="processing" text="تحت الصيانة" />
-                      <div className="text-sm">{item.quantity} قطعة</div>
+                      <div className="text-base">{item.quantity} قطعة</div>
                     </Space>
                   </div>
                 ))}
@@ -964,7 +971,7 @@ export default function Dashboard() {
                   <Button
                     type="link"
                     href="/dashboard/Maintenance"
-                    className="pr-0"
+                    className="pr-0 hover:text-blue-600 transition-colors"
                   >
                     عرض تفاصيل الصيانة
                   </Button>

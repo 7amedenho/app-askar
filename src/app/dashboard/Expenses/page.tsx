@@ -259,7 +259,7 @@ export default function Page() {
           ))
         ) : (
           <div className="col-span-2 text-center p-6 border rounded-lg">
-            لا توجد مصروفات
+            لا توجد مصروفات - او اضف التاريخ أولاً
           </div>
         )}
       </div>

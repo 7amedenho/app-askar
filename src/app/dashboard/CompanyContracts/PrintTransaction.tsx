@@ -40,9 +40,7 @@ export default function PrintTransaction({
         <html lang="ar" dir="rtl">
         <head>
           <meta charset="UTF-8">
-          <title>معاملة شركة - ${
-            transaction?.companyContract?.name || ""
-          }</title>
+          <title>معاملة شركة - ${transaction?.companyContract?.name || ""}</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
             body {
@@ -112,6 +110,9 @@ export default function PrintTransaction({
             }
             .transaction-details {
               padding: 20px;
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
             }
             .detail-row {
               display: flex;
@@ -202,41 +203,23 @@ export default function PrintTransaction({
             <div class="transaction-details">
               <div class="detail-row">
                 <div class="detail-label">اسم الشركة:</div>
-                <div class="detail-value">${
-                  transaction?.companyContract?.name || "-"
-                }</div>
+                <div class="detail-value">${transaction?.companyContract?.name || "-"}</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">اسم المشروع:</div>
-                <div class="detail-value">${
-                  transaction?.projectName || "-"
-                }</div>
+                <div class="detail-value">${transaction?.projectName || "-"}</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">رقم العقد:</div>
-                <div class="detail-value">${
-                  transaction?.contractNumber || "-"
-                }</div>
+                <div class="detail-value">${transaction?.contractNumber || "-"}</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">تاريخ العقد:</div>
-                <div class="detail-value">${
-                  transaction?.contractDate
-                    ? new Date(transaction.contractDate).toLocaleDateString(
-                        "ar-SA"
-                      )
-                    : "-"
-                }</div>
+                <div class="detail-value">${transaction?.contractDate ? new Date(transaction.contractDate).toLocaleDateString("ar-EG") : "-"}</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">تاريخ فتح الملف:</div>
-                <div class="detail-value">${
-                  transaction?.fileOpenDate
-                    ? new Date(transaction.fileOpenDate).toLocaleDateString(
-                        "ar-SA"
-                      )
-                    : "-"
-                }</div>
+                <div class="detail-value">${transaction?.fileOpenDate ? new Date(transaction.fileOpenDate).toLocaleDateString("ar-EG") : "-"}</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">رقم الملف:</div>
@@ -244,66 +227,36 @@ export default function PrintTransaction({
               </div>
               <div class="detail-row">
                 <div class="detail-label">النسبة (%):</div>
-                <div class="detail-value">${
-                  transaction?.percentage || "0"
-                }%</div>
+                <div class="detail-value">${transaction?.percentage || "0"}%</div>
               </div>
               <div class="detail-row">
                 <div class="detail-label">قيمة العقد:</div>
-                <div class="detail-value">${
-                  transaction?.contractValue?.toLocaleString() || "0"
-                } جنيه</div>
+                <div class="detail-value">${transaction?.contractValue?.toLocaleString() || "0"} جنيه</div>
               </div>
-              
               <div class="detail-row">
                 <div class="detail-label">رقم الفاتورة:</div>
                 <div class="detail-value">${transaction?.invoiceNumber || "-"}</div>
               </div>
-              
               <div class="detail-row">
                 <div class="detail-label">قيمة الفاتورة:</div>
-                <div class="detail-value">${
-                  transaction?.invoiceValue
-                    ? transaction.invoiceValue.toLocaleString() + " جنيه"
-                    : "-"
-                }</div>
+                <div class="detail-value">${transaction?.invoiceValue ? transaction.invoiceValue.toLocaleString() + " جنيه" : "-"}</div>
               </div>
-              
               <div class="detail-row">
                 <div class="detail-label">رقم الشهادة:</div>
                 <div class="detail-value">${transaction?.certificateNumber || "-"}</div>
               </div>
-              
               <div class="detail-row">
                 <div class="detail-label">تاريخ الشهادة:</div>
-                <div class="detail-value">${
-                  transaction?.certificateDate
-                    ? new Date(transaction.certificateDate).toLocaleDateString("ar-SA")
-                    : "-"
-                }</div>
+                <div class="detail-value">${transaction?.certificateDate ? new Date(transaction.certificateDate).toLocaleDateString("ar-EG") : "-"}</div>
               </div>
-              
               <div class="detail-row">
                 <div class="detail-label">القيمة المدفوعة للشهادة:</div>
-                <div class="detail-value">${
-                  transaction?.certificateValue
-                    ? transaction.certificateValue.toLocaleString() + " جنيه"
-                    : "-"
-                }</div>
+                <div class="detail-value">${transaction?.certificateValue ? transaction.certificateValue.toLocaleString() + " جنيه" : "-"}</div>
               </div>
-              
               <div class="detail-row">
                 <div class="detail-label">الحالة:</div>
                 <div class="detail-value">
-                  <span class="status ${
-                    transaction?.status === "مكتمل"
-                      ? "status-completed"
-                      : transaction?.status === "جارٍ التنفيذ"
-                      ? "status-in-progress"
-                      : transaction?.status === "متوقف"
-                      ? "status-stopped"
-                      : "status-missing"
-                  }">
+                  <span class="status ${transaction?.status === "مكتمل" ? "status-completed" : transaction?.status === "جارٍ التنفيذ" ? "status-in-progress" : transaction?.status === "متوقف" ? "status-stopped" : "status-missing"}">
                     ${transaction?.status || ""}
                   </span>
                 </div>
@@ -314,7 +267,7 @@ export default function PrintTransaction({
               <p>تم إصدار هذا التقرير بواسطة <strong>نظام عسكر للمقاولات العمومية</strong></p>
             </div>
             <div class="timestamp">
-              تاريخ الطباعة: ${new Date().toLocaleString("ar-SA")}
+              تاريخ الطباعة: ${new Date().toLocaleString("ar-EG")}
             </div>
           </div>
         </body>
@@ -350,52 +303,100 @@ export default function PrintTransaction({
             {/* محتوى الطباعة سيتم إنشاؤه ديناميكيًا في دالة handlePrint */}
           </div>
 
-          <div className="flex flex-col space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold">
+          <div className="flex flex-col space-y-6">
+            <div className="flex justify-between items-center p-4 rounded-lg">
+              <h3 className="text-lg font-bold ">
                 معاملة: {transaction.projectName}
               </h3>
-              <p>شركة: {transaction.companyContract?.name}</p>
+              <p className="">شركة: {transaction.companyContract?.name}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <p className="font-semibold">رقم العقد:</p>
-                <p>{transaction.contractNumber}</p>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className=" p-4 rounded-lg shadow-sm">
+                  <h4 className="text-base font-semibold mb-3 pb-2 border-b">بيانات العقد</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="">رقم العقد:</span>
+                      <span className="font-medium">{transaction.contractNumber}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">تاريخ العقد:</span>
+                      <span className="font-medium">{new Date(transaction.contractDate).toLocaleDateString("ar-EG")}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">قيمة العقد:</span>
+                      <span className="font-medium">{transaction.contractValue?.toLocaleString()} جنيه</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">النسبة:</span>
+                      <span className="font-medium">{transaction.percentage}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className=" p-4 rounded-lg shadow-sm">
+                  <h4 className="text-base font-semibold mb-3 pb-2 border-b">بيانات الملف</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="">رقم الملف:</span>
+                      <span className="font-medium">{transaction.fileNumber}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">تاريخ فتح الملف:</span>
+                      <span className="font-medium">{transaction.fileOpenDate ? new Date(transaction.fileOpenDate).toLocaleDateString("ar-EG") : "-"}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold">تاريخ العقد:</p>
-                <p>
-                  {new Date(transaction.contractDate).toLocaleDateString(
-                    "ar-SA"
-                  )}
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold">رقم الملف:</p>
-                <p>{transaction.fileNumber}</p>
-              </div>
-              <div>
-                <p className="font-semibold">تاريخ فتح الملف:</p>
-                <p>
-                  {transaction.fileOpenDate
-                    ? new Date(transaction.fileOpenDate).toLocaleDateString(
-                        "ar-SA"
-                      )
-                    : "-"}
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold">قيمة العقد:</p>
-                <p>{transaction.contractValue?.toLocaleString()} جنيه</p>
-              </div>
-              <div>
-                <p className="font-semibold">النسبة (%):</p>
-                <p>{transaction.percentage}%</p>
-              </div>
-              <div>
-                <p className="font-semibold">الحالة:</p>
-                <p>{transaction.status}</p>
+
+              <div className="space-y-4">
+                <div className=" p-4 rounded-lg shadow-sm">
+                  <h4 className="text-base font-semibold mb-3 pb-2 border-b">بيانات الفاتورة</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="">رقم الفاتورة:</span>
+                      <span className="font-medium">{transaction.invoiceNumber || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">قيمة الفاتورة:</span>
+                      <span className="font-medium">{transaction.invoiceValue ? transaction.invoiceValue.toLocaleString() + " جنيه" : "-"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className=" p-4 rounded-lg shadow-sm">
+                  <h4 className="text-base font-semibold mb-3 pb-2 border-b">بيانات الشهادة</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="">رقم الشهادة:</span>
+                      <span className="font-medium">{transaction.certificateNumber || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">تاريخ الشهادة:</span>
+                      <span className="font-medium">{transaction.certificateDate ? new Date(transaction.certificateDate).toLocaleDateString("ar-EG") : "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="">قيمة الشهادة:</span>
+                      <span className="font-medium">{transaction.certificateValue ? transaction.certificateValue.toLocaleString() + " جنيه" : "-"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className=" p-4 rounded-lg shadow-sm">
+                  <h4 className="text-base font-semibold mb-3 pb-2 border-b">الحالة</h4>
+                  <div className="flex justify-between items-center">
+                    <span className="">حالة المعاملة:</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      transaction.status === "مكتمل" ? "bg-green-100 text-green-800" :
+                      transaction.status === "جارٍ التنفيذ" ? "bg-yellow-100 text-yellow-800" :
+                      transaction.status === "متوقف" ? "bg-red-100 text-red-800" :
+                      "bg-gray-100 "
+                    }`}>
+                      {transaction.status}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -405,6 +406,7 @@ export default function PrintTransaction({
                 icon={<PrinterOutlined />}
                 size="large"
                 onClick={handlePrint}
+                className="bg-blue-600 hover:bg-blue-700"
               >
                 طباعة المعاملة
               </Button>
