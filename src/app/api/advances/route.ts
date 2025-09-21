@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
             expenseType: "سلفة",
             responsiblePerson: employee.name,
             custodyId,
-            date: new Date(),
+            date: new Date(requestDate),
           },
         });
       }
