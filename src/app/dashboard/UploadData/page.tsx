@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Typography,
@@ -40,7 +40,20 @@ export default function UploadDataPage() {
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<UploadResult | null>(null);
   const [activeTab, setActiveTab] = useState("upload");
+  const [employees, setEmployees] = useState([]);
 
+  useEffect(() => {
+    // Fetch employees to validate fingerprints
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get("/api/employees");
+        setEmployees(res.data);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+    fetchEmployees();
+  }, []);
   const handleUpload = async () => {
     const formData = new FormData();
     if (fileList.length === 0) {
@@ -119,12 +132,10 @@ export default function UploadDataPage() {
   const attendanceInstructions = (
     <>
       <Title level={4}>تنسيق ملف الحضور والانصراف</Title>
-      <Paragraph>
-        يجب أن يحتوي ملف Excel على الأعمدة التالية:
-      </Paragraph>
+      <Paragraph>يجب أن يحتوي ملف Excel على الأعمدة التالية:</Paragraph>
       <ul>
         <li>
-          <Text strong>userId/fingerprint</Text>: معرف المستخدم في نظام البصمة 
+          <Text strong>userId/fingerprint</Text>: معرف المستخدم في نظام البصمة
           (يجب أن يتطابق مع حقل fingerprint في بيانات الموظف)
         </li>
         <li>
@@ -148,40 +159,51 @@ export default function UploadDataPage() {
 
   // Generate example content for download
   const exampleContent = [
-    {
-      fingerprint: "ID12345",
-      date: "2023-10-15",
-      checkIn: "08:00",
-      checkOut: "16:30",
-    },
-    {
-      fingerprint: "ID67890",
-      date: "2023-10-15",
-      checkIn: "07:45",
-      checkOut: "16:00",
-    },
+    employees.map((emp: any) => ({
+      fingerprint: emp.fingerprint,
+      name: emp.name,
+      date: "",
+      checkIn: "",
+      checkOut: "",
+    })),
   ];
 
   // Function to download example template
-  const downloadExample = () => {
-    // Create CSV content
-    const headers = ["fingerprint", "date", "checkIn", "checkOut"];
-    const csvContent = [
-      headers.join(","),
-      ...exampleContent.map((row) =>
-        headers.map((header) => row[header as keyof typeof row]).join(",")
-      ),
-    ].join("\n");
+  // const downloadExample = () => {
+  //   // Create CSV content
+  //   const headers = ["fingerprint", name, "date", "checkIn", "checkOut"];
+  //   const csvContent = [
+  //     headers.join(","),
+  //     ...exampleContent.map((row) =>
+  //       headers.map((header) => row[header as keyof typeof row]).join(",")
+  //     ),
+  //   ].join("\n");
 
-    // Create blob and download link
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "نموذج_حضور_وانصراف.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  //   // Create blob and download link
+  //   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  //   const url = URL.createObjectURL(blob);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.setAttribute("download", "نموذج_حضور_وانصراف.csv");
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
+  const downloadTemplate = async () => {
+    try {
+      const res = await axios.get("/api/attendance-template", {
+        responseType: "blob", // مهم علشان ينزل كملف
+      });
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "نموذج_الحضور.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      message.error("حصل خطأ أثناء تنزيل النموذج");
+    }
   };
 
   // Tabs configuration
@@ -201,7 +223,9 @@ export default function UploadDataPage() {
 
           <Dragger {...props} disabled={uploading}>
             <p className="ant-upload-drag-icon">
-              <FileExcelOutlined style={{ fontSize: "48px", color: "#52c41a" }} />
+              <FileExcelOutlined
+                style={{ fontSize: "48px", color: "#52c41a" }}
+              />
             </p>
             <p className="ant-upload-text">
               انقر أو اسحب ملف Excel/CSV لتحميله
@@ -222,7 +246,7 @@ export default function UploadDataPage() {
               >
                 {uploading ? "جاري التحميل..." : "تحميل"}
               </Button>
-              <Button onClick={downloadExample} icon={<FileExcelOutlined />}>
+              <Button onClick={downloadTemplate} icon={<FileExcelOutlined />}>
                 تنزيل نموذج
               </Button>
             </Space>
@@ -273,7 +297,7 @@ export default function UploadDataPage() {
       children: (
         <Card>
           <Title level={3}>تعليمات تحميل البيانات</Title>
-          
+
           <Alert
             message="يرجى التأكد من ربط معرف المستخدم في نظام البصمة مع الموظف في النظام"
             description="قبل استخدام ميزة تحميل البيانات، تأكد من تحديث حقل fingerprint لكل موظف ليطابق معرف المستخدم الخاص به في نظام البصمة ZKTeco."
@@ -281,11 +305,11 @@ export default function UploadDataPage() {
             showIcon
             style={{ marginBottom: "20px" }}
           />
-          
+
           {attendanceInstructions}
-          
+
           <Divider />
-          
+
           <Title level={4}>تعليمات الاستخدام</Title>
           <ol>
             <li>اختر ملف Excel أو CSV بتنسيق البيانات المطلوب</li>
@@ -293,7 +317,7 @@ export default function UploadDataPage() {
             <li>انتظر حتى اكتمال العملية وعرض نتائج المعالجة</li>
             <li>يمكنك مراجعة أي أخطاء ظهرت أثناء المعالجة</li>
           </ol>
-          
+
           <Alert
             message="تلميح"
             description="يمكنك تنزيل نموذج من صفحة التحميل لمعرفة التنسيق المطلوب بالضبط."
@@ -309,29 +333,33 @@ export default function UploadDataPage() {
       children: (
         <Card>
           <Title level={3}>الأسئلة الشائعة</Title>
-          
+
           <Title level={4}>ما المقصود بمعرف المستخدم (fingerprint)؟</Title>
           <Paragraph>
-            معرف المستخدم هو الرقم التعريفي للموظف في نظام البصمة ZKTeco. يجب تعيين هذا المعرف في حقل fingerprint لكل موظف في صفحة إدارة الموظفين.
+            معرف المستخدم هو الرقم التعريفي للموظف في نظام البصمة ZKTeco. يجب
+            تعيين هذا المعرف في حقل fingerprint لكل موظف في صفحة إدارة الموظفين.
           </Paragraph>
-          
+
           <Title level={4}>ماذا لو لم يكن لدي وقت انصراف لبعض الموظفين؟</Title>
           <Paragraph>
-            يمكنك ترك عمود checkOut فارغًا للموظفين الذين ليس لديهم وقت انصراف مسجل. ستتم معالجة هذه السجلات كحضور فقط بدون وقت انصراف.
+            يمكنك ترك عمود checkOut فارغًا للموظفين الذين ليس لديهم وقت انصراف
+            مسجل. ستتم معالجة هذه السجلات كحضور فقط بدون وقت انصراف.
           </Paragraph>
-          
+
           <Title level={4}>هل سيتم تحديث السجلات الموجودة؟</Title>
           <Paragraph>
-            نعم، إذا كان هناك سجل حضور موجود بالفعل لنفس الموظف في نفس اليوم، سيتم تحديثه بالبيانات الجديدة من الملف المحمل.
+            نعم، إذا كان هناك سجل حضور موجود بالفعل لنفس الموظف في نفس اليوم،
+            سيتم تحديثه بالبيانات الجديدة من الملف المحمل.
           </Paragraph>
-          
+
           <Title level={4}>ما هي تنسيقات التاريخ والوقت المدعومة؟</Title>
           <Paragraph>
-            يجب أن تكون التواريخ بتنسيق YYYY-MM-DD (مثال: 2023-10-15) وأوقات الحضور والانصراف بتنسيق HH:MM (مثال: 08:30).
+            يجب أن تكون التواريخ بتنسيق YYYY-MM-DD (مثال: 2023-10-15) وأوقات
+            الحضور والانصراف بتنسيق HH:MM (مثال: 08:30).
           </Paragraph>
-          
+
           <Divider />
-          
+
           <Paragraph>
             إذا كنت بحاجة إلى مساعدة إضافية، يرجى التواصل مع مسؤول النظام.
           </Paragraph>
@@ -350,4 +378,4 @@ export default function UploadDataPage() {
       />
     </div>
   );
-} 
+}

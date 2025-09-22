@@ -38,7 +38,8 @@ async function updateEmployeeBudget(
       amountToAdd = hoursWorked * hourlyRate;
     }
 
-    const finalAmount = action === "add" ? Math.round(amountToAdd) : -Math.round(amountToAdd);
+    const finalAmount =
+      action === "add" ? Math.round(amountToAdd) : -Math.round(amountToAdd);
 
     // تحديث الميزانية
     await prisma.employee.update({
@@ -91,16 +92,6 @@ export async function PUT(
     }
 
     // تحديث السجل
-    const updatedAttendance = await prisma.attendance.update({
-      where: { id: parseInt(id) },
-      data: {
-        employeeId: parseInt(employeeId),
-        date: new Date(date),
-        checkIn: new Date(checkIn),
-        checkOut: checkOut ? new Date(checkOut) : null,
-        notes: notes || null,
-      },
-    });
 
     // تحديث الميزانية بناءً على التغييرات
     const employee = await prisma.employee.findUnique({
@@ -125,6 +116,17 @@ export async function PUT(
         "subtract"
       );
     }
+
+    const updatedAttendance = await prisma.attendance.update({
+      where: { id: parseInt(id) },
+      data: {
+        employeeId: parseInt(employeeId),
+        date: new Date(date),
+        checkIn: new Date(checkIn),
+        checkOut: checkOut ? new Date(checkOut) : null,
+        notes: notes || null,
+      },
+    });
 
     // إضافة القيمة الجديدة إذا كان هناك checkOut جديد
     if (checkOut) {

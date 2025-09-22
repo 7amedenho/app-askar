@@ -315,7 +315,7 @@ function parseExcelTime(timeValue: any): {
   seconds = Math.min(59, Math.max(0, seconds));
   
   // طرح 3 ساعات من الوقت لتصحيح فرق التوقيت
-  hours = (hours - 3 + 24) % 24; // نضيف 24 ثم نأخذ باقي القسمة على 24 لضمان أن الساعة تبقى بين 0 و 23
+  // hours = (hours - 3 + 24) % 24; // نضيف 24 ثم نأخذ باقي القسمة على 24 لضمان أن الساعة تبقى بين 0 و 23
   
   return { hours, minutes, seconds };
 }
